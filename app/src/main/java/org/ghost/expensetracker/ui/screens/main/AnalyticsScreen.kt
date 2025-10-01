@@ -1,0 +1,483 @@
+package org.ghost.expensetracker.ui.screens.main
+
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.utils.CurrencyUtils
+import org.ghost.expensetracker.core.utils.getSafeDefaultCurrencyCode
+import org.ghost.expensetracker.data.default.CategoryDefaults
+import org.ghost.expensetracker.data.models.Category
+import org.ghost.expensetracker.data.models.ExpenseChartData
+import org.ghost.expensetracker.data.viewModels.main.AnalyticsUiState
+import org.ghost.expensetracker.data.viewModels.main.AnalyticsViewModel
+import org.ghost.expensetracker.data.viewModels.main.TimeFilter
+import org.ghost.expensetracker.ui.components.ChartItem
+import org.ghost.expensetracker.ui.components.DropDownButton
+import org.ghost.expensetracker.ui.components.ErrorSnackBar
+import org.ghost.expensetracker.ui.components.GraphItem
+import org.ghost.expensetracker.ui.components.GraphItemState
+import org.ghost.expensetracker.ui.components.LineChart
+import org.ghost.expensetracker.ui.components.PieChart
+import org.ghost.expensetracker.ui.navigation.AppRoute
+import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
+import org.ghost.expensetracker.ui.navigation.MainRoute
+
+
+data class AnalyticsScreenActions(
+    val onNavigationItemClick: (AppRoute) -> Unit,
+    val onCategoryCardClick: (Category) -> Unit,
+)
+
+data class AnalyticsScreenContentActions(
+    val onCategoryItemClick: (String) -> Unit,
+    val onAccountItemClick: (String) -> Unit,
+    val onCategoryFilterChange: (String) -> Unit,
+    val onAccountFilterChange: (String) -> Unit,
+    val onCardFilterChange: (String) -> Unit,
+    val onCardItemClick: (String) -> Unit,
+    val onIncomeFilterChange: (String) -> Unit,
+    val onExpenseFilterChange: (String) -> Unit,
+)
+
+@Composable
+fun AnalyticsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AnalyticsViewModel = hiltViewModel(),
+    actions: AnalyticsScreenActions,
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val profileOwnerId = viewModel.profileOwnerId
+
+    LaunchedEffect(uiState.category) {
+        if (uiState.category == null) {
+            return@LaunchedEffect
+        }
+        Log.d("AnalyticsScreen", "AnalyticsScreen: ${uiState.category}")
+        actions.onCategoryCardClick(uiState.category!!)
+    }
+
+    val contentActions = AnalyticsScreenContentActions(
+        onIncomeFilterChange = {
+            viewModel.onIncomeTimeFilterChange(TimeFilter.fromStringOrDefault(it, TimeFilter.WEEK))
+        },
+        onExpenseFilterChange = {
+            viewModel.onExpenseTimeFilterChange(TimeFilter.fromStringOrDefault(it, TimeFilter.WEEK))
+        },
+        onCategoryFilterChange = {
+            viewModel.onCategoryTimeFilterChange(
+                TimeFilter.fromStringOrDefault(
+                    it,
+                    TimeFilter.WEEK
+                )
+            )
+        },
+        onAccountFilterChange = {
+            viewModel.onAccountTimeFilterChange(
+                TimeFilter.fromStringOrDefault(
+                    it,
+                    TimeFilter.WEEK
+                )
+            )
+        },
+        onCategoryItemClick = {
+            viewModel.updateCategory(it)
+        },
+        onAccountItemClick = {
+            viewModel.updateAccount(it)
+        },
+        onCardFilterChange = {
+            viewModel.onCardTimeFilterChange(TimeFilter.fromStringOrDefault(it, TimeFilter.WEEK))
+        },
+        onCardItemClick = {},
+    )
+
+    AnalyticsScreenContent(
+        modifier = modifier,
+        profileId = profileOwnerId,
+        actions = actions,
+        uiState = uiState,
+        contentActions = contentActions,
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnalyticsScreenContent(
+    modifier: Modifier = Modifier,
+    profileId: Long,
+    uiState: AnalyticsUiState,
+    actions: AnalyticsScreenActions,
+    contentActions: AnalyticsScreenContentActions,
+) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    val filters = TimeFilter.entries.toList()
+
+    val incomeState = remember(
+        uiState.incomeData,
+        uiState.incomeTimeFilter,
+        uiState.isIncomeChartError,
+        uiState.isIncomeChartLoading
+    ) {
+        // This defines a lambda function
+        val highestIncome = {
+            val amount = uiState.incomeData.maxOfOrNull { it.totalAmount } ?: 0.0
+            CurrencyUtils.formattedAmount(amount, getSafeDefaultCurrencyCode())
+        }
+
+        GraphItemState(
+            title = "Income",
+            // The fix is to CALL the function to get its String result
+            amountString = highestIncome(),
+            filter = uiState.incomeTimeFilter.toString(),
+            filters = filters.map { it.toString() },
+            isError = uiState.isIncomeChartError,
+            isLoading = uiState.isIncomeChartLoading
+        )
+    }
+
+    val spendState = remember(
+        uiState.spendData,
+        uiState.expenseTimeFilter,
+        uiState.isSpendChartError,
+        uiState.isSpendChartLoading
+    ) {
+        val highestExpense = {
+            val amount = uiState.spendData.maxOfOrNull { it.totalAmount } ?: 0.0
+            CurrencyUtils.formattedAmount(amount, getSafeDefaultCurrencyCode())
+        }
+        GraphItemState(
+            title = "Spend",
+            amountString = highestExpense(),
+            filter = uiState.expenseTimeFilter.toString(),
+            filters = filters.map { it.toString() },
+            isError = uiState.isSpendChartError,
+            isLoading = uiState.isSpendChartLoading
+        )
+    }
+
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            snackbarHostState.showSnackbar(
+                it,
+                withDismissAction = true,
+                duration = SnackbarDuration.Indefinite
+            )
+        }
+    }
+
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { snackbarData ->
+                ErrorSnackBar(snackbarData = snackbarData)
+            }
+        },
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Analytics",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+            )
+
+        },
+        bottomBar = {
+            BottomAppBar {
+                ExpenseTrackerNavigationBar(
+                    selectedItem = MainRoute.Analytics(profileId),
+                    onNavigationItemClick = actions.onNavigationItemClick,
+                    profileOwnerId = profileId,
+                )
+            }
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                GraphItem(
+                    state = spendState,
+                    onFilterChange = contentActions.onExpenseFilterChange,
+                ) {
+                    LineChart(
+                        modifier = Modifier
+                            .height(220.dp),
+                        expense = uiState.spendData
+                    )
+                }
+
+            }
+
+            item {
+                GraphItem(
+                    state = incomeState,
+                    onFilterChange = contentActions.onIncomeFilterChange,
+                ) {
+                    LineChart(
+                        modifier = Modifier
+                            .height(220.dp),
+                        expense = uiState.incomeData
+                    )
+                }
+            }
+
+
+            item {
+                HorizontalDivider()
+            }
+
+            item {
+                FilterItem(
+                    title = stringResource(R.string.categories),
+                    filter = uiState.categoryTimeFilter.toString(),
+                    filters = filters.map { it.toString() },
+                    onFilterChange = contentActions.onCategoryFilterChange
+                )
+            }
+            item {
+                PieGraphItem(
+                    data = uiState.categoryExpenseData,
+                    onItemClick = contentActions.onCategoryItemClick
+                )
+            }
+
+            item {
+                HorizontalDivider()
+            }
+
+            item {
+                FilterItem(
+                    title = stringResource(R.string.account),
+                    filter = uiState.accountTimeFilter.toString(),
+                    filters = filters.map { it.toString() },
+                    onFilterChange = contentActions.onAccountFilterChange
+                )
+            }
+            item {
+                PieGraphItem(
+                    data = uiState.accountExpenseData,
+                    onItemClick = contentActions.onAccountItemClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PieGraphItem(
+    modifier: Modifier = Modifier,
+    data: List<ExpenseChartData>,
+    onItemClick: (String) -> Unit
+) {
+    // This `remember` block is efficient and correct.
+    val pieChartData = remember(data) {
+        val colors: List<Color> = CategoryDefaults.categoryColors
+        if (colors.isEmpty()) return@remember emptyList()
+
+        data.mapIndexed { index, chartData ->
+            ChartItem(
+                label = chartData.label ?: "",
+                amount = chartData.totalAmount,
+                color = colors[index % colors.size]
+            )
+        }
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            // 2. Use BoxWithConstraints to get available space and create a responsive layout.
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                // Define a breakpoint to switch between Row and Column.
+                val isWideScreen = this.maxWidth > 400.dp
+
+                if (isWideScreen) {
+                    // --- WIDE LAYOUT: Chart and Legend side-by-side ---
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        PieChart(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f), // Fills height and stays square
+                            data = pieChartData
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // 3. Make the legend scrollable using LazyColumn.
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            pieChartData.forEach { item ->
+                                SimplePieChartItem(
+                                    item = item,
+                                    onItemClick = onItemClick,
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    // --- NARROW LAYOUT: Chart on top of Legend ---
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        PieChart(
+                            modifier = Modifier
+                                .padding(horizontal = 40.dp, vertical = 0.dp)
+                                .fillMaxWidth(1f) // Takes 70% of the width
+                                .aspectRatio(1f),
+                            data = pieChartData,
+                            backgroundColor = CardDefaults.cardColors().containerColor
+                        )
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            pieChartData.forEach { item ->
+                                SimplePieChartItem(
+                                    item = item,
+                                    onItemClick = onItemClick,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun SimplePieChartItem(
+    modifier: Modifier = Modifier,
+    item: ChartItem,
+    onItemClick: (String) -> Unit,
+) {
+    val amountText = remember(item.amount) {
+        val formattedBalance = CurrencyUtils.formattedAmount(
+            item.amount,
+            getSafeDefaultCurrencyCode()
+        )
+        formattedBalance
+    }
+    Row(
+        modifier = modifier.clickable { onItemClick(item.label) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(item.color)
+        ) {}
+
+        Text(
+            text = item.label,
+            maxLines = 1,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+        )
+        Text(
+            text = amountText,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+        )
+    }
+}
+
+
+@Composable
+private fun FilterItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    filter: String,
+    filters: List<String>,
+    onFilterChange: (String) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.weight(1f)
+        )
+        DropDownButton(
+            filter = filter,
+            filters = filters,
+            onFilterChange = onFilterChange,
+        )
+    }
+
+}
+
+
+
+
+
+
+
+
+
