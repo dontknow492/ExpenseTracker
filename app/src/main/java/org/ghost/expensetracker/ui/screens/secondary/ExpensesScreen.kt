@@ -1,14 +1,19 @@
 package org.ghost.expensetracker.ui.screens.secondary
 
+import android.widget.Button
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -16,15 +21,21 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -56,11 +67,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.ExpenseSortBy
@@ -70,6 +85,7 @@ import org.ghost.expensetracker.core.ui.states.ExpensesFilterData
 import org.ghost.expensetracker.data.models.Expense
 import org.ghost.expensetracker.data.viewModels.secondary.ExpensesViewModel
 import org.ghost.expensetracker.ui.components.CategoriesContent
+import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import org.ghost.expensetracker.ui.components.ExpenseItem
 import org.ghost.expensetracker.ui.components.SortListScreen
@@ -81,6 +97,7 @@ fun ExpensesScreen(
     viewModel: ExpensesViewModel = hiltViewModel(),
     onNavigateBackClick: () -> Unit,
     onExpenseCardClick: (Expense) -> Unit,
+    onAddExpenseClick: (Long) -> Unit,
 ) {
     val expensesPagingFLow: LazyPagingItems<Expense> =
         viewModel.expensesFlow.collectAsLazyPagingItems()
@@ -108,7 +125,10 @@ fun ExpensesScreen(
             onDeselectAll = viewModel::deselectAll,
             onInvertSelection = viewModel::invertSelection,
             onClearFilters = viewModel::clearFilters,
-            onDeleteSelected = viewModel::deleteSelected
+            onDeleteSelected = viewModel::deleteSelected,
+            onAddExpenseClick = {
+                onAddExpenseClick(viewModel.profileOwnerId)
+            }
         )
     }
 
@@ -140,6 +160,8 @@ private fun ExpensesScreenContent(
     val isNavigationBarVisible = remember(selectedIds) {
         selectedIds.isNotEmpty()
     }
+    var isDeleteDialogVisible by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(errorString) {
         errorString?.let {
@@ -177,7 +199,9 @@ private fun ExpensesScreenContent(
                     onDeselectAll = actions.onDeselectAll,
                     onInvertSelection = actions.onInvertSelection,
                     onClearFilters = actions.onClearFilters,
-                    onDelete = actions.onDeleteSelected
+                    onDelete = {
+                        isDeleteDialogVisible = true
+                    }
                 )
             }
 
@@ -190,7 +214,8 @@ private fun ExpensesScreenContent(
             expenses = expenses,
             selectedIds = selectedIds,
             onExpenseClick = actions.onExpenseCardClick,
-            onExpenseLongClick = actions.onExpenseLongClick
+            onExpenseLongClick = actions.onExpenseLongClick,
+            onAddExpenseClick = actions.onAddExpenseClick
         )
 
         if (isBottomSheetVisible) {
@@ -213,6 +238,19 @@ private fun ExpensesScreenContent(
                 maxDate = filterData.filters.maxDate
             )
         }
+    }
+
+    if (isDeleteDialogVisible) {
+        ConfirmDeleteDialog(
+            onDismissRequest = { isDeleteDialogVisible = false },
+            onConfirm = {
+                actions.onDeleteSelected()
+                isDeleteDialogVisible = false
+            },
+            title = stringResource(R.string.delete_expenses),
+            icon = Icons.Outlined.Delete,
+            text = stringResource(R.string.delete_expenses_message)
+        )
     }
 }
 
@@ -541,33 +579,139 @@ private fun ExpensesList(
     selectedIds: Set<Long>,
     onExpenseClick: (Expense) -> Unit,
     onExpenseLongClick: (Expense) -> Unit,
+    onAddExpenseClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(
-            count = expenses.itemCount,
-            key = { index -> expenses[index]?.id ?: index }) { index ->
-            val expense = expenses.get(index)
-            expense?.let {
-                val isItemSelected = it.id in selectedIds
-                ExpenseItem(
-                    modifier = Modifier,
-                    expense = it,
-                    isSelected = isItemSelected,
-                    onClick = { expense ->
-                        if (isItemSelected) {
-                            onExpenseLongClick(expense)
-                        } else {
-                            onExpenseClick(expense)
+        expenses.loadState.apply {
+            when (val refreshState = expenses.loadState.refresh) {
+                is LoadState.Loading -> {
+                    item {
+                        CircularProgressIndicator()
+                    }
+                }
+                is LoadState.Error -> {
+                    val e = expenses.loadState.refresh as LoadState.Error
+                    item {
+                        ErrorItem(
+                            message = e.error.message ?: "Unknown error occurred",
+                            showRefreshButton = true,
+                            onRefreshClick = { expenses.retry() }
+                        )
+                    }
+                }
+                is LoadState.NotLoading -> {
+                    if(expenses.itemCount == 0){
+                        item {
+                            EmptyScreen(
+                                modifier = Modifier.fillParentMaxSize(),
+                                model = R.drawable.cat,
+                                text = stringResource(R.string.empty_expense_list_message),
+                                button = {
+                                    Button( onClick = onAddExpenseClick ) {
+                                        Text(stringResource(R.string.add_expense))
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(R.string.add_expense)
+                                        )
+                                    }
+                                }
+                            )
                         }
-                    },
-                    onLongClick = onExpenseLongClick,
-                )
+                    }else{
+                        items(
+                            count = expenses.itemCount,
+                            key = { index -> expenses[index]?.id ?: index }) { index ->
+                            val expense = expenses.get(index)
+                            expense?.let {
+                                val isItemSelected = it.id in selectedIds
+                                ExpenseItem(
+                                    modifier = Modifier,
+                                    expense = it,
+                                    isSelected = isItemSelected,
+                                    onClick = { expense ->
+                                        if (isItemSelected) {
+                                            onExpenseLongClick(expense)
+                                        } else {
+                                            onExpenseClick(expense)
+                                        }
+                                    },
+                                    onLongClick = onExpenseLongClick,
+                                )
 
 
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }
+}
+
+@Composable
+fun EmptyScreen(
+    modifier: Modifier = Modifier,
+    model: Any?,
+    contentDescription: String? = null,
+    text: String,
+    button: (@Composable () -> Unit)?,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = model,
+            contentDescription = contentDescription,
+            modifier = Modifier.fillMaxWidth().height(300.dp)
+//            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier,
+            textAlign = TextAlign.Center
+        )
+
+        AnimatedVisibility(button != null) {
+            if (button != null) {
+                Column {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    button()
+                }
+
+            }
+        }
+
+    }
+}
+
+@Composable
+fun ErrorItem(modifier: Modifier = Modifier, message: String, showRefreshButton: Boolean, onRefreshClick: () -> Unit) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = message)
+            AnimatedVisibility(showRefreshButton ) {
+                Button(onClick = onRefreshClick) {
+                    Text("Refresh")
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh"
+                    )
+                }
+            }
+        }
+    }
+
 }

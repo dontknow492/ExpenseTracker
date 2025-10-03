@@ -20,11 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.CardSortBy
 import org.ghost.expensetracker.core.enums.SortOrder
+import org.ghost.expensetracker.core.ui.UiState
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
 import org.ghost.expensetracker.core.utils.isValidHex
@@ -70,6 +73,7 @@ import org.ghost.expensetracker.ui.components.DraggableCardItem
 import org.ghost.expensetracker.ui.navigation.AppRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
+import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -117,6 +121,7 @@ fun CardsScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardsScreenContent(
     modifier: Modifier = Modifier,
@@ -135,6 +140,11 @@ fun CardsScreenContent(
     }
     Scaffold(
         modifier = modifier,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.cards)) },
+            )
+        },
         bottomBar = {
             BottomAppBar {
                 ExpenseTrackerNavigationBar(
@@ -145,89 +155,111 @@ fun CardsScreenContent(
             }
         }
     ) { innerPadding ->
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                TextField(
-                    value = uiState.query,
-                    onValueChange = contentActions.onQueryChange,
-                    shape = CircleShape,
-                    label = { Text("Search") },
-                    placeholder = { Text("John, etc") },
-                    leadingIcon = {
+        if (uiState.cards.isEmpty()){
+            EmptyScreen(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                model = R.drawable.broken_card,
+                contentDescription = "No cards found",
+                text = stringResource(R.string.empty_card_list_message),
+                button = {
+                    Button( onClick = { actions.onAddCardClick(profileId) } ){
+                        Text(stringResource(R.string.add_card))
                         Icon(
-                            painter = painterResource(R.drawable.card),
-                            contentDescription = "card"
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.add_card)
                         )
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {}
-                        ) {
+                    }
+                }
+            )
+        }
+        else{
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    TextField(
+                        value = uiState.query,
+                        onValueChange = contentActions.onQueryChange,
+                        shape = CircleShape,
+                        label = { Text("Search") },
+                        placeholder = { Text("John, etc") },
+                        leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "clear"
+                                painter = painterResource(R.drawable.card),
+                                contentDescription = "card"
                             )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                        disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
-                    )
-                )
-
-            }
-            item {
-                AddItemTopBar(
-                    title = "Add Debit\nCredit Card",
-                    onAddNewClick = { actions.onAddCardClick(profileId) },
-                )
-            }
-
-            items(items = uiState.cards, key = { it.id }) { card ->
-                ReorderableItem(reorderableLazyListState, key = card.id) {
-                    val interactionSource = remember { MutableInteractionSource() }
-                    DraggableCardItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        card = card,
-                        onClick = actions.onCardClick,
-                        onEditClick = {
-                            editingCard = card
                         },
-                        onDeleteClick = {
-                            deletingCard = card
-                        },
-                        dragHandler = {
-                            if (uiState.sortBy == CardSortBy.DISPLAY_ORDER) {
-                                DragHandle(
-                                    modifier = Modifier.draggableHandle(
-
-                                        onDragStarted = {
-
-                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                        },
-                                        onDragStopped = {
-                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                        },
-                                    ),
-                                    interactionSource = interactionSource
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {}
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "clear"
                                 )
                             }
                         },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                            disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                        )
+                    )
+
+                }
+                item {
+                    AddItemTopBar(
+                        title = "Add Debit\nCredit Card",
+                        onAddNewClick = { actions.onAddCardClick(profileId) },
                     )
                 }
 
-            }
+                items(items = uiState.cards, key = { it.id }) { card ->
+                    ReorderableItem(reorderableLazyListState, key = card.id) {
+                        val interactionSource = remember { MutableInteractionSource() }
+                        DraggableCardItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            card = card,
+                            onClick = actions.onCardClick,
+                            onEditClick = {
+                                editingCard = card
+                            },
+                            onDeleteClick = {
+                                deletingCard = card
+                            },
+                            dragHandler = {
+                                if (uiState.sortBy == CardSortBy.DISPLAY_ORDER) {
+                                    DragHandle(
+                                        modifier = Modifier.draggableHandle(
 
+                                            onDragStarted = {
+
+                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                            },
+                                            onDragStopped = {
+                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                            },
+                                        ),
+                                        interactionSource = interactionSource
+                                    )
+                                }
+                            },
+                        )
+                    }
+
+                }
+
+            }
         }
+
     }
     if (deletingCard != null) {
         ConfirmDeleteDialog(

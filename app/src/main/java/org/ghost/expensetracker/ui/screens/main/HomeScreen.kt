@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.ghost.expensetracker.R
@@ -72,6 +74,8 @@ import org.ghost.expensetracker.ui.components.SimpleCardItem
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
 import org.ghost.expensetracker.ui.navigation.SecondaryRoute
+import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
+import org.ghost.expensetracker.ui.screens.secondary.ErrorItem
 
 @Composable
 fun HomeScreen(
@@ -561,19 +565,52 @@ fun HomeExpenseListItem(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(
-            minOf(expensesPagingItems.itemCount, 5),
-            key = { expensesPagingItems[it]?.id ?: it }) {
-            val expense = expensesPagingItems[it]
-            if (expense != null) {
-                ExpenseItem(
-                    modifier = modifier,
-                    expense = expense,
-                    onClick = onExpenseClick,
-                    isSelected = false,
-                    onLongClick = {}
-                )
+        when (val refreshState = expensesPagingItems.loadState.refresh){
+            is LoadState.Error -> {
+                val e = expensesPagingItems.loadState.refresh as LoadState.Error
+                item {
+                    ErrorItem(
+                        modifier = modifier,
+                        message = e.error.message ?: "Unknown error occurred",
+                        showRefreshButton = true,
+                        onRefreshClick = { expensesPagingItems.retry() }
+                    )
+                }
+            }
+            LoadState.Loading -> {
+                item {
+                    CircularProgressIndicator()
+                }
+            }
+            is LoadState.NotLoading -> {
+                if(expensesPagingItems.itemCount == 0){
+                    item {
+                        EmptyScreen(
+                            modifier = modifier.fillMaxWidth().height(350.dp),
+                            model = R.drawable.dog,
+                            text = "No recent activity",
+                            button = null,
+                        )
+                    }
+                }else{
+                    items(
+                        minOf(expensesPagingItems.itemCount, 5),
+                        key = { expensesPagingItems[it]?.id ?: it }) {
+                        val expense = expensesPagingItems[it]
+                        if (expense != null) {
+                            ExpenseItem(
+                                modifier = modifier,
+                                expense = expense,
+                                onClick = onExpenseClick,
+                                isSelected = false,
+                                onLongClick = {}
+                            )
+                        }
+                    }
+                }
+
             }
         }
+
     }
 }

@@ -111,6 +111,7 @@ fun ExpenseTrackerNavyGraph(
             onAddNewCategoryClick = onAddCategory,
             onNavigateToExpenses = onNavigateToExpenses,
             onExpenseClick = onExpenseClick,
+            onNavigateToScreen = onNavigationItemClick,
         )
         addGraph(
             onNavigateBackClick = onNavigateBackClick,
@@ -268,6 +269,7 @@ private fun NavGraphBuilder.secondaryGraph(
     onNavigateToExpenses: (Long, ExpenseFilters) -> Unit,
     onAddNewCategoryClick: (Long) -> Unit,
     onExpenseClick: (Expense) -> Unit,
+    onNavigateToScreen: (AppRoute) -> Unit,
 ) {
     composable<SecondaryRoute.Category> {
         CategoryScreen(
@@ -279,7 +281,10 @@ private fun NavGraphBuilder.secondaryGraph(
     composable<SecondaryRoute.Expenses> {
         ExpensesScreen(
             onNavigateBackClick = onNavigateBackClick,
-            onExpenseCardClick = onExpenseClick
+            onExpenseCardClick = onExpenseClick,
+            onAddExpenseClick = {id ->
+                onNavigateToScreen(AddRoute.AddExpense(id, isSend = true))
+            }
         )
     }
 

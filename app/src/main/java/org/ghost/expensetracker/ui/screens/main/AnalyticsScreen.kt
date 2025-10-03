@@ -17,12 +17,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -31,6 +36,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -61,6 +67,7 @@ import org.ghost.expensetracker.ui.components.PieChart
 import org.ghost.expensetracker.ui.navigation.AppRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
+import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 
 
 data class AnalyticsScreenActions(
@@ -150,6 +157,15 @@ fun AnalyticsScreenContent(
     actions: AnalyticsScreenActions,
     contentActions: AnalyticsScreenContentActions,
 ) {
+
+    val isEmpty by remember(uiState.incomeData, uiState.spendData, uiState.categoryExpenseData, uiState.accountExpenseData) {
+        derivedStateOf {
+            uiState.incomeData.isEmpty() &&
+                    uiState.spendData.isEmpty() &&
+                    uiState.categoryExpenseData.isEmpty() &&
+                    uiState.accountExpenseData.isEmpty()
+        }
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -244,71 +260,96 @@ fun AnalyticsScreenContent(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                GraphItem(
-                    state = spendState,
-                    onFilterChange = contentActions.onExpenseFilterChange,
-                ) {
-                    LineChart(
-                        modifier = Modifier
-                            .height(220.dp),
-                        expense = uiState.spendData
+            when (isEmpty){
+                true -> item {
+                    EmptyScreen(
+                        modifier = Modifier.fillParentMaxWidth(),
+                        model = R.drawable.broken_bar_chart,
+                        text = "Your expense history is empty, So no analysis is available",
+                        button = {
+                            Button( onClick = {} ){
+                                Text("Refresh")
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Refresh"
+                                )
+                            }
+
+                        }
                     )
                 }
+                false -> {
+                    item {
+                        if (uiState.spendData.isNotEmpty()){
+                            GraphItem(
+                                state = spendState,
+                                onFilterChange = contentActions.onExpenseFilterChange,
+                            ) {
+                                LineChart(
+                                    modifier = Modifier
+                                        .height(220.dp),
+                                    expense = uiState.spendData
+                                )
+                            }
+                        }
+                    }
 
-            }
+                    item {
+                        if (uiState.incomeData.isNotEmpty()){
+                            GraphItem(
+                                state = incomeState,
+                                onFilterChange = contentActions.onIncomeFilterChange,
+                            ) {
+                                LineChart(
+                                    modifier = Modifier
+                                        .height(220.dp),
+                                    expense = uiState.incomeData
+                                )
+                            }
+                        }
+                    }
 
-            item {
-                GraphItem(
-                    state = incomeState,
-                    onFilterChange = contentActions.onIncomeFilterChange,
-                ) {
-                    LineChart(
-                        modifier = Modifier
-                            .height(220.dp),
-                        expense = uiState.incomeData
-                    )
+
+                    item {
+                        HorizontalDivider()
+                    }
+
+                    item {
+                        FilterItem(
+                            title = stringResource(R.string.categories),
+                            filter = uiState.categoryTimeFilter.toString(),
+                            filters = filters.map { it.toString() },
+                            onFilterChange = contentActions.onCategoryFilterChange
+                        )
+                    }
+                    item {
+                        PieGraphItem(
+                            data = uiState.categoryExpenseData,
+                            onItemClick = contentActions.onCategoryItemClick
+                        )
+                    }
+
+                    item {
+                        HorizontalDivider()
+                    }
+
+                    item {
+                        FilterItem(
+                            title = stringResource(R.string.account),
+                            filter = uiState.accountTimeFilter.toString(),
+                            filters = filters.map { it.toString() },
+                            onFilterChange = contentActions.onAccountFilterChange
+                        )
+                    }
+                    item {
+                        PieGraphItem(
+                            data = uiState.accountExpenseData,
+                            onItemClick = contentActions.onAccountItemClick
+                        )
+                    }
                 }
             }
 
-
-            item {
-                HorizontalDivider()
-            }
-
-            item {
-                FilterItem(
-                    title = stringResource(R.string.categories),
-                    filter = uiState.categoryTimeFilter.toString(),
-                    filters = filters.map { it.toString() },
-                    onFilterChange = contentActions.onCategoryFilterChange
-                )
-            }
-            item {
-                PieGraphItem(
-                    data = uiState.categoryExpenseData,
-                    onItemClick = contentActions.onCategoryItemClick
-                )
-            }
-
-            item {
-                HorizontalDivider()
-            }
-
-            item {
-                FilterItem(
-                    title = stringResource(R.string.account),
-                    filter = uiState.accountTimeFilter.toString(),
-                    filters = filters.map { it.toString() },
-                    onFilterChange = contentActions.onAccountFilterChange
-                )
-            }
-            item {
-                PieGraphItem(
-                    data = uiState.accountExpenseData,
-                    onItemClick = contentActions.onAccountItemClick
-                )
-            }
         }
     }
 }

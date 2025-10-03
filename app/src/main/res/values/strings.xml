@@ -114,19 +114,32 @@
     <string name="card_not_found">Card not found</string>
     <string name="account_not_found">Account not found</string>
     <string name="delete_card">Delete Card?</string>
-    <string name="delete_card_message">Are you sure you want to delete this card? This action cannot be undone.</string>
+    <string name="delete_card_message">Are you sure you want to delete this card? This action cannot
+        be undone.</string>
     <string name="delete_category">Delete Category?</string>
-    <string name="delete_category_message">Are you sure you want to delete this category? All the expension of this category will be removed, This action cannot be undone.</string>
+    <string name="delete_category_message">Are you sure you want to delete this category? All the
+        expension of this category will be removed, This action cannot be undone.</string>
     <string name="profile_updated_successfully">Profile updated successfully</string>
     <string name="delete_account">Delete Account?</string>
-    <string name="delete_account_message">Are you sure you want to delete this account? This action cannot be undone.</string>
+    <string name="delete_account_message">Are you sure you want to delete this account? This action
+        cannot be undone.</string>
     <string name="accounts">Accounts</string>
     <string name="add_accounts">Add Accounts</string>
     <string name="about_us">About Us</string>
-    <string name="app_slogan">\"To empower individuals with intuitive tools for financial clarity and success.\"</string>
-    <string name="app_description">ExpenseTracker is a comprehensive personal finance management application designed to simplify your financial life. We provide a seamless experience for tracking expenses, managing budgets, and monitoring investments, all in one place. Our goal is to provide powerful insights that help you make smarter financial decisions.</string>
+    <string name="app_slogan">\"To empower individuals with intuitive tools for financial clarity
+        and success.\"</string>
+    <string name="app_description">ExpenseTracker is a comprehensive personal finance management
+        application designed to simplify your financial life. We provide a seamless experience for
+        tracking expenses, managing budgets, and monitoring investments, all in one place. Our goal
+        is to provide powerful insights that help you make smarter financial decisions.</string>
     <string name="what_we_do">What We Do</string>
     <string name="follow_us">Follow Us</string>
+    <string name="delete_expenses">Delete Expenses?</string>
+    <string name="delete_expenses_message">Are you sure you want to delete this expenses? This action cannot
+        be undone.</string>
+    <string name="empty_card_list_message">Your card list is empty. Tap the + button to add a new card.</string>
+    <string name="add_card">Add Card</string>
+    <string name="empty_expense_list_message">Your expense list is empty. Tap the + button to add a new expense.</string>
 
 
 </resources>

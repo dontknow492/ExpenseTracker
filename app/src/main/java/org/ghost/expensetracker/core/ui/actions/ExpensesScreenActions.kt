@@ -7,6 +7,7 @@ import org.ghost.expensetracker.data.models.Expense
 
 data class ExpensesScreenActions(
     val onNavigateBackClick: () -> Unit,
+    val onAddExpenseClick: () -> Unit,
     val onExpenseCardClick: (Expense) -> Unit,
     val onExpenseLongClick: (Expense) -> Unit,
     val onUpdateQuery: (String?) -> Unit,
