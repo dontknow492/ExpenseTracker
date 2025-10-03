@@ -20,7 +20,6 @@ import org.ghost.expensetracker.ui.screens.auth.ForgetPasswordScreen
 import org.ghost.expensetracker.ui.screens.auth.LoginScreen
 import org.ghost.expensetracker.ui.screens.auth.RegisterScreen
 import org.ghost.expensetracker.ui.screens.main.AnalyticsScreen
-import org.ghost.expensetracker.ui.screens.main.AnalyticsScreenActions
 import org.ghost.expensetracker.ui.screens.main.CardsScreen
 import org.ghost.expensetracker.ui.screens.main.CardsScreenActions
 import org.ghost.expensetracker.ui.screens.main.HomeScreen
@@ -193,12 +192,8 @@ private fun NavGraphBuilder.mainGraph(
         )
     }
     composable<MainRoute.Analytics> {
-        val actions = AnalyticsScreenActions(
-            onNavigationItemClick = onNavigationItemClick,
-            onCategoryCardClick = {}
-        )
         AnalyticsScreen(
-            actions = actions
+            onNavigationItemClick = onNavigationItemClick,
         )
     }
     composable<MainRoute.Cards> {
@@ -303,7 +298,9 @@ private fun NavGraphBuilder.secondaryGraph(
     composable<SecondaryRoute.Accounts> {
         AccountsScreen(
             onNavigateBack = onNavigateBackClick,
-            onNavigateToAccount = {}
+            onNavigateToAccount = {
+                onNavigateToScreen(SecondaryRoute.Expenses(it.profileOwnerId, accountId = it.id))
+            }
         )
     }
 

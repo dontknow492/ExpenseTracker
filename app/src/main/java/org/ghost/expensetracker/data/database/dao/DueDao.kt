@@ -40,7 +40,7 @@ interface DueDao {
 
     /**
      * The raw query endpoint that Room will use. The observedEntities parameter is
-     * crucial for making the returned Flow update automatically when the accounts table changes.
+     * crucial for making the returned Flow update automatically when the account table changes.
      */
     @RawQuery(observedEntities = [DueEntity::class])
     fun filterDuesRaw(query: SupportSQLiteQuery): PagingSource<Int, DueEntity>

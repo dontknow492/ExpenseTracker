@@ -140,6 +140,8 @@
     <string name="empty_card_list_message">Your card list is empty. Tap the + button to add a new card.</string>
     <string name="add_card">Add Card</string>
     <string name="empty_expense_list_message">Your expense list is empty. Tap the + button to add a new expense.</string>
+    <string name="cannot_delete_last_account">Cannot delete last account</string>
+    <string name="cannot_delete_last_category">Cannot delete last category</string>
 
 
 </resources>

@@ -18,8 +18,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +45,7 @@ import org.ghost.expensetracker.ui.components.AddItemTopBar
 import org.ghost.expensetracker.ui.components.CategoryWithExpenseItem
 import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog
 import org.ghost.expensetracker.ui.components.DragHandle
+import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import org.ghost.expensetracker.ui.screens.main.ErrorCard
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -54,6 +59,19 @@ fun CategoryScreen(
     onCategoryClick: (Long, ExpenseFilters) -> Unit,
 ) {
     val categoriesState by viewModel.categoriesState.collectAsStateWithLifecycle()
+    val errorState by viewModel.errorState.collectAsStateWithLifecycle()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(errorState) {
+        if (errorState != null) {
+            snackbarHostState.showSnackbar(
+                message = errorState!!,
+                withDismissAction = true,
+                duration = SnackbarDuration.Indefinite
+            )
+        }
+    }
 
     val actions = remember {
         CategoryScreenActions(
@@ -78,16 +96,18 @@ fun CategoryScreen(
         modifier = modifier,
         categoriesState = categoriesState,
         actions = actions,
+        snackbarHostState = snackbarHostState,
     )
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryScreenContent(
+private fun CategoryScreenContent(
     modifier: Modifier = Modifier,
     categoriesState: UiState<List<CategoryWithExpenseCount>>,
     actions: CategoryScreenActions,
+    snackbarHostState: SnackbarHostState,
 ) {
     var deletingCategory: CategoryWithExpenseCount? by remember { mutableStateOf(null) }
     Scaffold(
@@ -111,6 +131,11 @@ fun CategoryScreenContent(
                     }
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) {snackbarData ->
+                ErrorSnackBar(snackbarData = snackbarData)
+            }
         }
     ) { innerPadding ->
         Column(
@@ -121,7 +146,7 @@ fun CategoryScreenContent(
         ) {
             AddItemTopBar(
                 title = "Add Budget\nCategory",
-                onAddNewClick = { actions.onAddCategoryClick }
+                onAddNewClick = actions.onAddCategoryClick
             )
             when (categoriesState) {
                 is UiState.Loading -> {

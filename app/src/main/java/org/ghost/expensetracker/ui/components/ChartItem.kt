@@ -48,20 +48,20 @@ import org.ghost.expensetracker.ui.sample.compose.rememberMarker
 import java.text.DecimalFormat
 
 
-data class GraphItemState(
+data class GraphItemState <T: Enum<T>> (
     val title: String,
     val amountString: String,
-    val filter: String,
-    val filters: List<String>,
+    val filter: T,
+    val filters: List<T>,
     val isError: Boolean,
     val isLoading: Boolean,
 )
 
 @Composable
-fun GraphItem(
+fun <T: Enum<T>>GraphItem(
     modifier: Modifier = Modifier,
-    state: GraphItemState,
-    onFilterChange: (String) -> Unit,
+    state: GraphItemState<T>,
+    onFilterChange: (T) -> Unit,
     graph: @Composable () -> Unit
 ) {
 
@@ -96,7 +96,7 @@ fun GraphItem(
                 )
 
             }
-            DropDownButton(
+            EnumDropDownButton(
                 filter = state.filter,
                 filters = state.filters,
                 onFilterChange = onFilterChange

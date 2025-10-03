@@ -1,10 +1,12 @@
 package org.ghost.expensetracker.data.viewModels.secondary
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.ui.UiState
 import org.ghost.expensetracker.data.models.CategoryWithExpenseCount
 import org.ghost.expensetracker.data.useCase.category.DeleteCategoryUseCase
@@ -33,6 +36,7 @@ class CategoryViewModel @Inject constructor(
     private val updateCategoriesUseCase: UpdateCategoriesUseCase,
     private val deleteCategoryUseCase: DeleteCategoryUseCase,
     private val savedStateHandle: SavedStateHandle,
+    @param: ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _profileOwnerId: Long = checkNotNull(savedStateHandle["profileOwnerId"])
     val profileOwnerId: Long = _profileOwnerId
@@ -43,6 +47,10 @@ class CategoryViewModel @Inject constructor(
 
     private val _categoriesState =
         MutableStateFlow<UiState<List<CategoryWithExpenseCount>>>(UiState.Loading)
+
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+
 
     // 2. The public, read-only version for the UI to collect.
     val categoriesState: StateFlow<UiState<List<CategoryWithExpenseCount>>> =
@@ -116,7 +124,15 @@ class CategoryViewModel @Inject constructor(
 
     fun deleteCategory(category: CategoryWithExpenseCount) {
         viewModelScope.launch(Dispatchers.IO) {
-            deleteCategoryUseCase(category.category.id)
+            if (_categoriesState.value is UiState.Success) {
+                val data = (_categoriesState.value as UiState.Success<List<CategoryWithExpenseCount>>).data
+                if(data.size <=1){
+                    _errorState.value = context.getString(R.string.cannot_delete_last_category)
+                    return@launch
+                }
+                deleteCategoryUseCase(category.category.id)
+            }
+
 //            updateCategoriesUseCase(category.category.copy(isDeleted = true))
         }
     }

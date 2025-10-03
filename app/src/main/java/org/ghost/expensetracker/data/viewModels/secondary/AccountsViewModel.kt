@@ -1,16 +1,19 @@
 package org.ghost.expensetracker.data.viewModels.secondary
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.ghost.expensetracker.R
 import org.ghost.expensetracker.data.models.Account
 import org.ghost.expensetracker.data.useCase.profile.DeleteAccountUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetAccountsUseCase
@@ -29,7 +32,8 @@ class AccountsViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
     private val updateAccountUseCase: UpdateAccountUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    @param: ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _profileOwnerId: Long = checkNotNull(savedStateHandle["profileOwnerId"])
     val profileOwnerId: Long = _profileOwnerId
@@ -88,6 +92,12 @@ class AccountsViewModel @Inject constructor(
 
     fun deleteAccount(account: Account) {
         viewModelScope.launch {
+            if(_uiState.value.accounts.size == 1){
+                _uiState.update {
+                    it.copy(error = context.getString(R.string.cannot_delete_last_account))
+                }
+                return@launch
+            }
             val success = deleteAccountUseCase(account)
             if (!success) {
                 _uiState.update {

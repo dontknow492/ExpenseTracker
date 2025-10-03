@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.ExpenseGroupBy
+import org.ghost.expensetracker.core.enums.ExpenseType
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.data.database.models.ExpenseFilters
 import org.ghost.expensetracker.data.models.Account
@@ -29,6 +30,7 @@ import org.ghost.expensetracker.data.useCase.chart.GetExpenseChartDataUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetAccountUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetCardUseCase
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
 
 enum class TimeFilter {
     DAY,
@@ -80,6 +82,7 @@ data class AnalyticsUiState(
 
     //category
     val category: Category? = null,
+    val categoryExpenseType: ExpenseType = ExpenseType.RECIVE,
     val categoryError: String? = null,
     val isCategoryLoading: Boolean = false,
     val isCategoryChartError: Boolean = false,
@@ -91,7 +94,8 @@ data class AnalyticsUiState(
     val isCardChartError: Boolean = false,
 
     //account
-    val accounts: Account? = null,
+    val account: Account? = null,
+    val accountExpenseType: ExpenseType = ExpenseType.RECIVE,
     val accountsError: String? = null,
     val isAccountLoading: Boolean = false,
     val isAccountChartError: Boolean = false,
@@ -127,8 +131,11 @@ class AnalyticsViewModel @Inject constructor(
     private val _expenseTimeFilter = MutableStateFlow(TimeFilter.WEEK)
     private val _incomeTimeFilter = MutableStateFlow(TimeFilter.WEEK)
     private val _categoryTimeFilter = MutableStateFlow(TimeFilter.WEEK)
+    private val _categoryExpenseType = MutableStateFlow(ExpenseType.RECIVE)
     private val _cardTimeFilter = MutableStateFlow(TimeFilter.WEEK)
     private val _accountTimeFilter = MutableStateFlow(TimeFilter.WEEK)
+    private val _accountExpenseType = MutableStateFlow(ExpenseType.RECIVE)
+
 
 
     // Private MutableStateFlow that we will update
@@ -144,7 +151,9 @@ class AnalyticsViewModel @Inject constructor(
             expenseTimeFilter = _expenseTimeFilter.value,
             categoryTimeFilter = _categoryTimeFilter.value,
             cardTimeFilter = _cardTimeFilter.value,
-            accountTimeFilter = _accountTimeFilter.value
+            accountTimeFilter = _accountTimeFilter.value,
+            categoryExpenseType = _categoryExpenseType.value,
+            accountExpenseType = _accountExpenseType.value,
         )
     )
 
@@ -163,41 +172,45 @@ class AnalyticsViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadCategoryExpenseData() {
         viewModelScope.launch {
-            _categoryTimeFilter.flatMapLatest { timeFilter ->
+            combine(_categoryExpenseType, _categoryTimeFilter) { type, timeFilter ->
+                type to timeFilter
+            }.flatMapLatest { (type, timeFilter) ->
                 val dateRange = DateTimeUtils.mapTimeFilterToDateRange(timeFilter)
-                Log.d("AnalyticsViewModel", "Date Range: $dateRange")
                 getExpenseChartDataUseCase(
                     profileOwnerId = _profileOwnerId,
                     groupBy = ExpenseGroupBy.CATEGORY,
                     filters = ExpenseFilters(
-                        isSend = true,
+                        isSend = type == ExpenseType.SEND,
                         minDate = dateRange.first,
                         maxDate = dateRange.second
                     )
-                ).onStart {
-                    // Set loading state at the beginning of the flow
-                    _uiState.update { it.copy(isCardLoading = true) }
-                }.catch { exception ->
-                    // Handle any errors
-                    _uiState.update {
-                        it.copy(
-                            isCardLoading = false,
-                            isCategoryChartError = true,
-                            error = exception.stackTraceToString()
-                        )
+                )
+                    .onStart {
+                        // 1. Set loading to true and clear any previous error state
+                        _uiState.update { it.copy(isCardLoading = true, isCategoryChartError = false) }
                     }
+                    .catch { exception ->
+                        _uiState.update {
+                            it.copy(
+                                isCardLoading = false,
+                                isCategoryChartError = true,
+                                error = exception.stackTraceToString()
+                            )
+                        }
+                        // 2. Emit an empty list on error to allow the flow to continue
+                        emit(emptyList())
+                    }
+            }.collect { newCategoryData ->
+                // 3. Update data and, most importantly, set loading to false
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isCardLoading = false,
+                        categoryExpenseData = newCategoryData,
+                        categoryTimeFilter = _categoryTimeFilter.value,
+                        categoryExpenseType = _categoryExpenseType.value
+                    )
                 }
             }
-                .collect { newCategoryData ->
-                    // Update state with the new data
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            isLoading = false,
-                            categoryExpenseData = newCategoryData,
-                            categoryTimeFilter = _categoryTimeFilter.value
-                        )
-                    }
-                }
         }
     }
 
@@ -235,7 +248,7 @@ class AnalyticsViewModel @Inject constructor(
                         currentState.copy(
                             isCardLoading = false,
                             cardExpenseData = newCategoryData,
-                            cardTimeFilter = _cardTimeFilter.value
+                            cardTimeFilter = _cardTimeFilter.value,
                         )
                     }
                 }
@@ -245,40 +258,33 @@ class AnalyticsViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadAccountExpenseData() {
         viewModelScope.launch {
-            _accountTimeFilter.flatMapLatest { timeFilter ->
+            combine(_accountExpenseType, _accountTimeFilter) { type, timeFilter ->
+                type to timeFilter
+            }.flatMapLatest { (type, timeFilter) ->
                 val dateRange = DateTimeUtils.mapTimeFilterToDateRange(timeFilter)
                 getExpenseChartDataUseCase(
                     profileOwnerId = _profileOwnerId,
                     groupBy = ExpenseGroupBy.ACCOUNT,
                     filters = ExpenseFilters(
-                        isSend = true,
+                        isSend = type == ExpenseType.SEND,
                         minDate = dateRange.first,
                         maxDate = dateRange.second
                     )
                 ).onStart {
-                    // Set loading state at the beginning of the flow
                     _uiState.update { it.copy(isAccountLoading = true) }
-                }.catch { exception ->
-                    // Handle any errors
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = exception.stackTraceToString(),
-                            isAccountChartError = true
-                        )
-                    }
+                }.catch {
+                    _uiState.update { it.copy(isAccountLoading = false, error = it.error, isAccountChartError = true) }
+                }
+            }.collect { newAccountData ->
+                _uiState.update {
+                    it.copy(
+                        isAccountLoading = false,
+                        accountExpenseData = newAccountData,
+                        accountTimeFilter = _accountTimeFilter.value,
+                        accountExpenseType = _accountExpenseType.value
+                    )
                 }
             }
-                .collect { newCategoryData ->
-                    // Update state with the new data
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            isAccountLoading = false,
-                            accountExpenseData = newCategoryData,
-                            accountTimeFilter = _accountTimeFilter.value
-                        )
-                    }
-                }
         }
     }
 
@@ -397,6 +403,18 @@ class AnalyticsViewModel @Inject constructor(
         }
     }
 
+    fun onCategoryExpenseTypeChange(expenseType: ExpenseType) {
+        _categoryExpenseType.update {
+            expenseType
+        }
+    }
+
+    fun onAccountExpenseTypeChange(expenseType: ExpenseType) {
+        _accountExpenseType.update {
+            expenseType
+        }
+    }
+
 
     fun updateCategory(name: String) {
         viewModelScope.launch {
@@ -449,14 +467,14 @@ class AnalyticsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         accountsError = context.getString(R.string.account_not_found),
-                        accounts = null
+                        account = null
                     )
                 }
             } else {
                 _uiState.update {
                     it.copy(
                         accountsError = null,
-                        accounts = account
+                        account = account
                     )
                 }
             }

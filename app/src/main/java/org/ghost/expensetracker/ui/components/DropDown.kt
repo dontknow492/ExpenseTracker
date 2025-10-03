@@ -65,3 +65,44 @@ fun DropDownButton(
     }
 
 }
+
+
+@Composable
+fun <T: Enum<T>>EnumDropDownButton(modifier: Modifier = Modifier, filter: T, filters: List<T>, onFilterChange: (T) -> Unit) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val rotation = animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = ""
+    )
+
+    OutlinedCard(
+        shape = CircleShape,
+        modifier = modifier.clickable(onClick = { isExpanded = true })
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        ) {
+            Text(text = filter.toString())
+            Icon(
+                imageVector = Icons.Outlined.KeyboardArrowDown,
+                modifier = Modifier.rotate(rotation.value),
+                contentDescription = null
+            )
+        }
+        DropdownMenu(
+            isExpanded,
+            onDismissRequest = { isExpanded = false }
+        ) {
+            filters.forEach {
+                DropdownMenuItem(
+                    text = { Text(it.toString()) },
+                    onClick = {
+                        onFilterChange(it)
+                        isExpanded = false
+                    }
+                )
+            }
+        }
+    }
+
+}

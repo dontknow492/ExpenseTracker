@@ -38,7 +38,7 @@ fun createMockProfiles(count: Int): List<ProfileEntity> {
             avatarUri = null,
             avatarUrl = null,
             email = "${firstName.lowercase()}.${lastName.uppercase()}$i@example.com",
-            passwordHash = "mock_password_hash_${randomNumber}", // Placeholder hash
+            passwordHash = "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", // Placeholder hash of 12345678
             creationTimestamp = System.currentTimeMillis() - Random.nextLong(10000, 86400000)
         )
         mockProfiles.add(profile)
@@ -142,13 +142,13 @@ fun createMockCategories(profileOwnerId: Long): List<CategoryEntity> {
 /**
  * Creates a list of mock AccountEntity objects for a specific profile.
  *
- * @param profileOwnerId The ID of the profile to associate these accounts with.
+ * @param profileOwnerId The ID of the profile to associate these account with.
  * @return A list of predefined AccountEntity objects.
  */
 fun createMockAccounts(profileOwnerId: Long): List<AccountEntity> {
     val mockAccounts = mutableListOf<AccountEntity>()
 
-    // A predefined list of common accounts. One is marked as default.
+    // A predefined list of common account. One is marked as default.
     val accountData = listOf(
         Pair("Bank Account", true),
         Pair("Cash", false),

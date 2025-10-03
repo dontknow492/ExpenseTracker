@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 
 // This entity is now production-ready, following best practices for naming.
 @Entity(
-    tableName = "accounts",
+    tableName = "account",
     foreignKeys = [
         ForeignKey(
             entity = ProfileEntity::class,

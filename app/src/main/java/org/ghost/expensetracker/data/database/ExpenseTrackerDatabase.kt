@@ -4,6 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import kotlinx.coroutines.runBlocking
+import org.ghost.expensetracker.core.mock.createMockAccounts
+import org.ghost.expensetracker.core.mock.createMockCards
+import org.ghost.expensetracker.core.mock.createMockCategories
+import org.ghost.expensetracker.core.mock.createMockExpenses
+import org.ghost.expensetracker.core.mock.createMockProfiles
 import org.ghost.expensetracker.data.database.dao.AccountDao
 import org.ghost.expensetracker.data.database.dao.CardDao
 import org.ghost.expensetracker.data.database.dao.CategoryDao

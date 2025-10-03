@@ -26,23 +26,23 @@ interface AccountDao {
     @Delete
     suspend fun delete(account: AccountEntity): Int
 
-    @Query("DELETE FROM accounts WHERE id = :id")
+    @Query("DELETE FROM account WHERE id = :id")
     suspend fun deleteAccountById(id: Long): Int
 
-    @Query("SELECT * FROM accounts WHERE id = :id")
+    @Query("SELECT * FROM account WHERE id = :id")
     fun getAccountById(id: Long): Flow<AccountEntity?>
 
-    @Query("SELECT * FROM accounts WHERE profile_owner_id = :profileId AND name = :name Limit 1")
+    @Query("SELECT * FROM account WHERE profile_owner_id = :profileId AND name = :name Limit 1")
     fun getAccountByProfileAndName(profileId: Long, name: String): Flow<AccountEntity?>
 
-    @Query("SELECT COUNT(id) FROM accounts")
+    @Query("SELECT COUNT(id) FROM account")
     suspend fun getAccountsCount(): Int
 
-    @Query("SELECT * FROM accounts where profile_owner_id = :profileId ORDER BY display_order")
+    @Query("SELECT * FROM account where profile_owner_id = :profileId ORDER BY display_order")
     fun getAllAccountsForProfile(profileId: Long): Flow<List<AccountEntity>>
 
 
-    @Query("SELECT * FROM accounts where profile_owner_id = :profileId AND is_default = 1 LIMIT 1")
+    @Query("SELECT * FROM account where profile_owner_id = :profileId AND is_default = 1 LIMIT 1")
     fun getDefaultAccountForProfile(profileId: Long): Flow<AccountEntity?>
 
 

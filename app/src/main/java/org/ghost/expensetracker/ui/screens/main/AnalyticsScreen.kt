@@ -1,6 +1,5 @@
 package org.ghost.expensetracker.ui.screens.main
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,16 +47,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.enums.ExpenseType
 import org.ghost.expensetracker.core.utils.CurrencyUtils
 import org.ghost.expensetracker.core.utils.getSafeDefaultCurrencyCode
 import org.ghost.expensetracker.data.default.CategoryDefaults
-import org.ghost.expensetracker.data.models.Category
 import org.ghost.expensetracker.data.models.ExpenseChartData
 import org.ghost.expensetracker.data.viewModels.main.AnalyticsUiState
 import org.ghost.expensetracker.data.viewModels.main.AnalyticsViewModel
 import org.ghost.expensetracker.data.viewModels.main.TimeFilter
 import org.ghost.expensetracker.ui.components.ChartItem
 import org.ghost.expensetracker.ui.components.DropDownButton
+import org.ghost.expensetracker.ui.components.EnumDropDownButton
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import org.ghost.expensetracker.ui.components.GraphItem
 import org.ghost.expensetracker.ui.components.GraphItemState
@@ -66,65 +66,54 @@ import org.ghost.expensetracker.ui.components.PieChart
 import org.ghost.expensetracker.ui.navigation.AppRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
+import org.ghost.expensetracker.ui.navigation.SecondaryRoute
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 
 
-data class AnalyticsScreenActions(
-    val onNavigationItemClick: (AppRoute) -> Unit,
-    val onCategoryCardClick: (Category) -> Unit,
-)
 
-data class AnalyticsScreenContentActions(
+data class AnalyticsScreenActions(
     val onCategoryItemClick: (String) -> Unit,
     val onAccountItemClick: (String) -> Unit,
-    val onCategoryFilterChange: (String) -> Unit,
-    val onAccountFilterChange: (String) -> Unit,
+    val onCategoryFilterChange: (TimeFilter) -> Unit,
+    val onCategoryTypeFilterChange: (ExpenseType) -> Unit,
+
+    val onAccountFilterChange: (TimeFilter) -> Unit,
+    val onAccountTypeFilterChange: (ExpenseType) -> Unit,
+
     val onCardFilterChange: (String) -> Unit,
     val onCardItemClick: (String) -> Unit,
-    val onIncomeFilterChange: (String) -> Unit,
-    val onExpenseFilterChange: (String) -> Unit,
+    val onIncomeFilterChange: (TimeFilter) -> Unit,
+    val onExpenseFilterChange: (TimeFilter) -> Unit,
 )
 
 @Composable
 fun AnalyticsScreen(
     modifier: Modifier = Modifier,
     viewModel: AnalyticsViewModel = hiltViewModel(),
-    actions: AnalyticsScreenActions,
+    onNavigationItemClick: (AppRoute) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val profileOwnerId = viewModel.profileOwnerId
 
-    LaunchedEffect(uiState.category) {
-        if (uiState.category == null) {
+    LaunchedEffect(uiState.category, uiState.account) {
+        if (uiState.category == null && uiState.account == null) {
             return@LaunchedEffect
         }
-        Log.d("AnalyticsScreen", "AnalyticsScreen: ${uiState.category}")
-        actions.onCategoryCardClick(uiState.category!!)
+        if (uiState.category != null){
+            onNavigationItemClick(SecondaryRoute.Expenses(profileOwnerId, categoryId = uiState.category!!.id))
+        }
+        if (uiState.account != null){
+            onNavigationItemClick(SecondaryRoute.Expenses(profileOwnerId, accountId = uiState.account!!.id))
+        }
     }
 
-    val contentActions = AnalyticsScreenContentActions(
-        onIncomeFilterChange = {
-            viewModel.onIncomeTimeFilterChange(TimeFilter.fromStringOrDefault(it, TimeFilter.WEEK))
-        },
-        onExpenseFilterChange = {
-            viewModel.onExpenseTimeFilterChange(TimeFilter.fromStringOrDefault(it, TimeFilter.WEEK))
-        },
-        onCategoryFilterChange = {
-            viewModel.onCategoryTimeFilterChange(
-                TimeFilter.fromStringOrDefault(
-                    it,
-                    TimeFilter.WEEK
-                )
-            )
-        },
-        onAccountFilterChange = {
-            viewModel.onAccountTimeFilterChange(
-                TimeFilter.fromStringOrDefault(
-                    it,
-                    TimeFilter.WEEK
-                )
-            )
-        },
+    val contentActions = AnalyticsScreenActions(
+        onIncomeFilterChange = viewModel::onIncomeTimeFilterChange,
+        onExpenseFilterChange = viewModel::onExpenseTimeFilterChange,
+        onCategoryFilterChange = viewModel::onCategoryTimeFilterChange,
+        onCategoryTypeFilterChange = viewModel::onCategoryExpenseTypeChange,
+        onAccountFilterChange = viewModel::onAccountTimeFilterChange,
+        onAccountTypeFilterChange = viewModel::onAccountExpenseTypeChange,
         onCategoryItemClick = {
             viewModel.updateCategory(it)
         },
@@ -140,7 +129,7 @@ fun AnalyticsScreen(
     AnalyticsScreenContent(
         modifier = modifier,
         profileId = profileOwnerId,
-        actions = actions,
+        onNavigationItemClick = onNavigationItemClick,
         uiState = uiState,
         contentActions = contentActions,
     )
@@ -153,8 +142,8 @@ fun AnalyticsScreenContent(
     modifier: Modifier = Modifier,
     profileId: Long,
     uiState: AnalyticsUiState,
-    actions: AnalyticsScreenActions,
-    contentActions: AnalyticsScreenContentActions,
+    onNavigationItemClick: (AppRoute) -> Unit,
+    contentActions: AnalyticsScreenActions,
 ) {
 
     val isEmpty by remember(
@@ -174,8 +163,6 @@ fun AnalyticsScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
 
 
-    val filters = TimeFilter.entries.toList()
-
     val incomeState = remember(
         uiState.incomeData,
         uiState.incomeTimeFilter,
@@ -192,8 +179,8 @@ fun AnalyticsScreenContent(
             title = "Income",
             // The fix is to CALL the function to get its String result
             amountString = highestIncome(),
-            filter = uiState.incomeTimeFilter.toString(),
-            filters = filters.map { it.toString() },
+            filter = uiState.incomeTimeFilter,
+            filters = TimeFilter.entries,
             isError = uiState.isIncomeChartError,
             isLoading = uiState.isIncomeChartLoading
         )
@@ -212,8 +199,8 @@ fun AnalyticsScreenContent(
         GraphItemState(
             title = "Spend",
             amountString = highestExpense(),
-            filter = uiState.expenseTimeFilter.toString(),
-            filters = filters.map { it.toString() },
+            filter = uiState.expenseTimeFilter,
+            filters = TimeFilter.entries,
             isError = uiState.isSpendChartError,
             isLoading = uiState.isSpendChartLoading
         )
@@ -252,7 +239,7 @@ fun AnalyticsScreenContent(
             BottomAppBar {
                 ExpenseTrackerNavigationBar(
                     selectedItem = MainRoute.Analytics(profileId),
-                    onNavigationItemClick = actions.onNavigationItemClick,
+                    onNavigationItemClick = onNavigationItemClick,
                     profileOwnerId = profileId,
                 )
             }
@@ -322,10 +309,12 @@ fun AnalyticsScreenContent(
                     item {
                         FilterItem(
                             title = stringResource(R.string.categories),
-                            filter = uiState.categoryTimeFilter.toString(),
-                            filters = filters.map { it.toString() },
-                            onFilterChange = contentActions.onCategoryFilterChange
+                            filter = uiState.categoryTimeFilter,
+                            typeFilter = uiState.categoryExpenseType,
+                            onFilterChange = contentActions.onCategoryFilterChange,
+                            onTypeFilterChange = contentActions.onCategoryTypeFilterChange
                         )
+
                     }
                     item {
                         PieGraphItem(
@@ -341,10 +330,12 @@ fun AnalyticsScreenContent(
                     item {
                         FilterItem(
                             title = stringResource(R.string.account),
-                            filter = uiState.accountTimeFilter.toString(),
-                            filters = filters.map { it.toString() },
-                            onFilterChange = contentActions.onAccountFilterChange
+                            filter = uiState.accountTimeFilter,
+                            typeFilter = uiState.accountExpenseType,
+                            onFilterChange = contentActions.onAccountFilterChange,
+                            onTypeFilterChange = contentActions.onAccountTypeFilterChange
                         )
+
                     }
                     item {
                         PieGraphItem(
@@ -498,22 +489,30 @@ private fun SimplePieChartItem(
 private fun FilterItem(
     modifier: Modifier = Modifier,
     title: String,
-    filter: String,
-    filters: List<String>,
-    onFilterChange: (String) -> Unit
+    filter: TimeFilter,
+    typeFilter: ExpenseType,
+    onFilterChange: (TimeFilter) -> Unit,
+    onTypeFilterChange: (ExpenseType) -> Unit,
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.weight(1f)
         )
-        DropDownButton(
+        EnumDropDownButton(
             filter = filter,
-            filters = filters,
-            onFilterChange = onFilterChange,
+            filters = TimeFilter.entries.toList(),
+            onFilterChange = onFilterChange
+        )
+        EnumDropDownButton(
+            filter = typeFilter,
+            filters = ExpenseType.entries.toList(),
+            onFilterChange = onTypeFilterChange
         )
     }
 

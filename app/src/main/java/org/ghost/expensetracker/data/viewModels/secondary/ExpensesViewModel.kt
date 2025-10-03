@@ -30,22 +30,27 @@ import org.ghost.expensetracker.core.enums.ExpenseSortBy
 import org.ghost.expensetracker.core.enums.SortOrder
 import org.ghost.expensetracker.core.ui.UiState
 import org.ghost.expensetracker.core.ui.states.ExpensesFilterData
+import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.data.database.models.ExpenseFilters
 import org.ghost.expensetracker.data.mappers.toDomainModel
 import org.ghost.expensetracker.data.models.Category
 import org.ghost.expensetracker.data.models.Expense
 import org.ghost.expensetracker.data.useCase.category.GetCategoriesUseCase
+import org.ghost.expensetracker.data.useCase.chart.GetExpenseChartDataUseCase
 import org.ghost.expensetracker.data.useCase.expense.DeleteExpensesUseCase
 import org.ghost.expensetracker.data.useCase.expense.FilterExpensesIdsUseCase
 import org.ghost.expensetracker.data.useCase.expense.FilterExpensesUseCase
+import org.ghost.expensetracker.data.viewModels.main.TimeFilter
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.collections.emptyList
 import org.ghost.expensetracker.core.utils.combine as myCombine
 
 
 @HiltViewModel
 class ExpensesViewModel @Inject constructor(
     private val filterExpensesUseCase: FilterExpensesUseCase,
+    private val getExpenseChartDataUseCase: GetExpenseChartDataUseCase,
     private val deleteExpensesUseCase: DeleteExpensesUseCase,
     private val filtersExpensesIdsUseCase: FilterExpensesIdsUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
@@ -141,6 +146,31 @@ class ExpensesViewModel @Inject constructor(
             initialValue = emptyList()
         )
     // 4. Cache the results in a CoroutineScope
+
+
+    private val _chartGroupBy = MutableStateFlow(TimeFilter.WEEK)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val chartData = combine(
+        _expenseFiltersState,
+        _chartGroupBy
+    ) { filters, groupBy ->
+        // Create a Pair of the latest values to pass to flatMapLatest
+        filters to groupBy
+    }.flatMapLatest { (filters, groupBy) ->
+        // flatMapLatest cancels the previous flow (database query)
+        // and launches a new one when filters or groupBy change.
+        getExpenseChartDataUseCase(
+            profileOwnerId = _profileOwnerId,
+            groupBy = DateTimeUtils.mapTimeFilterToExpenseGroupBy(groupBy),
+            filters = filters
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000), // Keeps data for 5s after UI is gone
+        initialValue = emptyList() // The initial value while the first real data loads
+    )
+
 
     private val _selectedIds = MutableStateFlow(emptySet<Long>())
     val selectedIds: StateFlow<Set<Long>> = _selectedIds.asStateFlow()

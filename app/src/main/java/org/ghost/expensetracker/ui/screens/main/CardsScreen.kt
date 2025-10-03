@@ -141,7 +141,10 @@ fun CardsScreenContent(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.cards)) },
+                title = { Text(
+                    stringResource(R.string.cards),
+                    style = MaterialTheme.typography.headlineLarge
+                ) },
             )
         },
         bottomBar = {

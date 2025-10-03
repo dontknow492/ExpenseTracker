@@ -219,7 +219,7 @@ interface ExpenseDao {
 
             ExpenseGroupBy.ACCOUNT -> Triple(
                 "A.name as label, SUM(E.amount) as totalAmount",
-                "FROM expenses E JOIN accounts A ON E.account_id = A.id",
+                "FROM expenses E JOIN account A ON E.account_id = A.id",
                 groupBy
             )
 

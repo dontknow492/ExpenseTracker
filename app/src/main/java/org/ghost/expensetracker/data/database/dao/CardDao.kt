@@ -53,7 +53,7 @@ interface CardDao {
 
     /**
      * The raw query endpoint that Room will use. The observedEntities parameter is
-     * crucial for making the returned Flow update automatically when the accounts table changes.
+     * crucial for making the returned Flow update automatically when the account table changes.
      */
     @RawQuery(observedEntities = [CardEntity::class])
     fun filterCardsRaw(query: SupportSQLiteQuery): Flow<List<CardEntity>>
