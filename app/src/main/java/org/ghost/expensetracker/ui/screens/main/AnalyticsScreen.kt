@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -158,7 +157,12 @@ fun AnalyticsScreenContent(
     contentActions: AnalyticsScreenContentActions,
 ) {
 
-    val isEmpty by remember(uiState.incomeData, uiState.spendData, uiState.categoryExpenseData, uiState.accountExpenseData) {
+    val isEmpty by remember(
+        uiState.incomeData,
+        uiState.spendData,
+        uiState.categoryExpenseData,
+        uiState.accountExpenseData
+    ) {
         derivedStateOf {
             uiState.incomeData.isEmpty() &&
                     uiState.spendData.isEmpty() &&
@@ -260,14 +264,14 @@ fun AnalyticsScreenContent(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            when (isEmpty){
+            when (isEmpty) {
                 true -> item {
                     EmptyScreen(
                         modifier = Modifier.fillParentMaxWidth(),
                         model = R.drawable.broken_bar_chart,
                         text = "Your expense history is empty, So no analysis is available",
                         button = {
-                            Button( onClick = {} ){
+                            Button(onClick = {}) {
                                 Text("Refresh")
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
@@ -278,9 +282,10 @@ fun AnalyticsScreenContent(
                         }
                     )
                 }
+
                 false -> {
                     item {
-                        if (uiState.spendData.isNotEmpty()){
+                        if (uiState.spendData.isNotEmpty()) {
                             GraphItem(
                                 state = spendState,
                                 onFilterChange = contentActions.onExpenseFilterChange,
@@ -295,7 +300,7 @@ fun AnalyticsScreenContent(
                     }
 
                     item {
-                        if (uiState.incomeData.isNotEmpty()){
+                        if (uiState.incomeData.isNotEmpty()) {
                             GraphItem(
                                 state = incomeState,
                                 onFilterChange = contentActions.onIncomeFilterChange,

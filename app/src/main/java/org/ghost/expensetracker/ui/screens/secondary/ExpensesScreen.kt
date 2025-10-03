@@ -1,6 +1,5 @@
 package org.ghost.expensetracker.ui.screens.secondary
 
-import android.widget.Button
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -8,12 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -68,7 +64,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -592,6 +587,7 @@ private fun ExpensesList(
                         CircularProgressIndicator()
                     }
                 }
+
                 is LoadState.Error -> {
                     val e = expenses.loadState.refresh as LoadState.Error
                     item {
@@ -602,15 +598,16 @@ private fun ExpensesList(
                         )
                     }
                 }
+
                 is LoadState.NotLoading -> {
-                    if(expenses.itemCount == 0){
+                    if (expenses.itemCount == 0) {
                         item {
                             EmptyScreen(
                                 modifier = Modifier.fillParentMaxSize(),
                                 model = R.drawable.cat,
                                 text = stringResource(R.string.empty_expense_list_message),
                                 button = {
-                                    Button( onClick = onAddExpenseClick ) {
+                                    Button(onClick = onAddExpenseClick) {
                                         Text(stringResource(R.string.add_expense))
                                         Icon(
                                             imageVector = Icons.Default.Add,
@@ -620,7 +617,7 @@ private fun ExpensesList(
                                 }
                             )
                         }
-                    }else{
+                    } else {
                         items(
                             count = expenses.itemCount,
                             key = { index -> expenses[index]?.id ?: index }) { index ->
@@ -668,7 +665,9 @@ fun EmptyScreen(
         AsyncImage(
             model = model,
             contentDescription = contentDescription,
-            modifier = Modifier.fillMaxWidth().height(300.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
 //            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -694,7 +693,12 @@ fun EmptyScreen(
 }
 
 @Composable
-fun ErrorItem(modifier: Modifier = Modifier, message: String, showRefreshButton: Boolean, onRefreshClick: () -> Unit) {
+fun ErrorItem(
+    modifier: Modifier = Modifier,
+    message: String,
+    showRefreshButton: Boolean,
+    onRefreshClick: () -> Unit
+) {
     Card(
         modifier = modifier
     ) {
@@ -702,7 +706,7 @@ fun ErrorItem(modifier: Modifier = Modifier, message: String, showRefreshButton:
             modifier = Modifier.padding(16.dp)
         ) {
             Text(text = message)
-            AnimatedVisibility(showRefreshButton ) {
+            AnimatedVisibility(showRefreshButton) {
                 Button(onClick = onRefreshClick) {
                     Text("Refresh")
                     Icon(

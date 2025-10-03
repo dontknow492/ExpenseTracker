@@ -282,7 +282,7 @@ private fun NavGraphBuilder.secondaryGraph(
         ExpensesScreen(
             onNavigateBackClick = onNavigateBackClick,
             onExpenseCardClick = onExpenseClick,
-            onAddExpenseClick = {id ->
+            onAddExpenseClick = { id ->
                 onNavigateToScreen(AddRoute.AddExpense(id, isSend = true))
             }
         )

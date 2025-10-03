@@ -565,7 +565,7 @@ fun HomeExpenseListItem(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        when (val refreshState = expensesPagingItems.loadState.refresh){
+        when (val refreshState = expensesPagingItems.loadState.refresh) {
             is LoadState.Error -> {
                 val e = expensesPagingItems.loadState.refresh as LoadState.Error
                 item {
@@ -577,22 +577,26 @@ fun HomeExpenseListItem(
                     )
                 }
             }
+
             LoadState.Loading -> {
                 item {
                     CircularProgressIndicator()
                 }
             }
+
             is LoadState.NotLoading -> {
-                if(expensesPagingItems.itemCount == 0){
+                if (expensesPagingItems.itemCount == 0) {
                     item {
                         EmptyScreen(
-                            modifier = modifier.fillMaxWidth().height(350.dp),
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .height(350.dp),
                             model = R.drawable.dog,
                             text = "No recent activity",
                             button = null,
                         )
                     }
-                }else{
+                } else {
                     items(
                         minOf(expensesPagingItems.itemCount, 5),
                         key = { expensesPagingItems[it]?.id ?: it }) {

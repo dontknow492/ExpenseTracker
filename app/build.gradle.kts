@@ -30,7 +30,7 @@ android {
             )
             signingConfig = signingConfigs.getByName("debug")
         }
-        debug{
+        debug {
             // Debug-specific configurations can go here
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"

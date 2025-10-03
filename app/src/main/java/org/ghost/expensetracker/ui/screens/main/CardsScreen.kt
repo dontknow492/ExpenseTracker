@@ -58,7 +58,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.CardSortBy
 import org.ghost.expensetracker.core.enums.SortOrder
-import org.ghost.expensetracker.core.ui.UiState
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
 import org.ghost.expensetracker.core.utils.isValidHex
@@ -155,7 +154,7 @@ fun CardsScreenContent(
             }
         }
     ) { innerPadding ->
-        if (uiState.cards.isEmpty()){
+        if (uiState.cards.isEmpty()) {
             EmptyScreen(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -164,7 +163,7 @@ fun CardsScreenContent(
                 contentDescription = "No cards found",
                 text = stringResource(R.string.empty_card_list_message),
                 button = {
-                    Button( onClick = { actions.onAddCardClick(profileId) } ){
+                    Button(onClick = { actions.onAddCardClick(profileId) }) {
                         Text(stringResource(R.string.add_card))
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -173,8 +172,7 @@ fun CardsScreenContent(
                     }
                 }
             )
-        }
-        else{
+        } else {
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier
@@ -242,10 +240,14 @@ fun CardsScreenContent(
 
                                             onDragStarted = {
 
-                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                                hapticFeedback.performHapticFeedback(
+                                                    HapticFeedbackType.GestureThresholdActivate
+                                                )
                                             },
                                             onDragStopped = {
-                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                                hapticFeedback.performHapticFeedback(
+                                                    HapticFeedbackType.GestureEnd
+                                                )
                                             },
                                         ),
                                         interactionSource = interactionSource

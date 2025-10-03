@@ -38,12 +38,12 @@
     <string name="do_not_have_account">Don\'t have an account?</string>
     <string name="forgot_password">Forgot password?</string>
 
-<!--    Reset Password Screen-->
+    <!--    Reset Password Screen-->
     <string name="reset_password">Reset Password</string>
     <string name="reset_password_banner_description">Enter your email and name to reset your password.</string>
     <string name="password_reset_successfully">Password reset successfully</string>
 
-<!--    Items-->
+    <!--    Items-->
     <string name="transfer">Transfer</string>
     <string name="receive">Receive</string>
     <string name="selected">Selected</string>
