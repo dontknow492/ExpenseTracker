@@ -25,6 +25,7 @@ import org.ghost.expensetracker.ui.screens.main.CardsScreenActions
 import org.ghost.expensetracker.ui.screens.main.HomeScreen
 import org.ghost.expensetracker.ui.screens.main.ProfileScreen
 import org.ghost.expensetracker.ui.screens.main.ProfileScreenActions
+import org.ghost.expensetracker.ui.screens.onboarding.GetStartedScreen
 import org.ghost.expensetracker.ui.screens.secondary.AboutUsScreen
 import org.ghost.expensetracker.ui.screens.secondary.AccountsScreen
 import org.ghost.expensetracker.ui.screens.secondary.CategoryScreen
@@ -93,6 +94,13 @@ fun ExpenseTrackerNavyGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
+        composable<OnBoardingRoute> {
+            GetStartedScreen(
+                onOnboardingFinished = {
+                    navHostController.navigate(AuthRoute.Login)
+                }
+            )
+        }
         authGraph(navHostController)
         mainGraph(
             onExpenseClick = onExpenseClick,

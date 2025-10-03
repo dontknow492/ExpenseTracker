@@ -142,6 +142,9 @@
     <string name="empty_expense_list_message">Your expense list is empty. Tap the + button to add a new expense.</string>
     <string name="cannot_delete_last_account">Cannot delete last account</string>
     <string name="cannot_delete_last_category">Cannot delete last category</string>
+    <string name="display">Track your expenses with ease</string>
+    <string name="get_started_body">Manage your expense easily using our intuitive and user-friendly interface and set limit to your daily/monthly expense and track your every inch of spending</string>
+    <string name="get_started">Get Started</string>
 
 
 </resources>

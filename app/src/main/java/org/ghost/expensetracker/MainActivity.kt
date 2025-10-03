@@ -18,6 +18,7 @@ import org.ghost.expensetracker.data.viewModels.secondary.SettingsViewModel
 import org.ghost.expensetracker.data.viewModels.secondary.StartupDestinationState
 import org.ghost.expensetracker.ui.navigation.AuthRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavyGraph
+import org.ghost.expensetracker.ui.navigation.OnBoardingRoute
 import org.ghost.expensetracker.ui.theme.ExpensiveTheme
 
 @AndroidEntryPoint
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     StartupDestinationState.Loading -> {
                         null
                     }
-
+                    StartupDestinationState.Onboarding -> OnBoardingRoute
                     StartupDestinationState.Login -> AuthRoute.Login
                     is StartupDestinationState.Main -> {
                         val profileId = (startDestination as StartupDestinationState.Main).profileId

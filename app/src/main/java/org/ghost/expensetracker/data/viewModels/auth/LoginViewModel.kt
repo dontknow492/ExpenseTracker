@@ -60,6 +60,7 @@ class LoginViewModel @Inject constructor(
             result.onSuccess { loggedInProfile ->
                 // Login was successful!
                 settingsRepository.updateLastLogin(loggedInProfile.id)
+                settingsRepository.updateOnboardingCompleted(true)
 
                 _uiState.update {
                     it.copy(

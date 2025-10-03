@@ -11,6 +11,9 @@ sealed interface AppRoute
 
 
 @Serializable
+object OnBoardingRoute : AppRoute
+
+@Serializable
 sealed interface AuthRoute : AppRoute {
     @Serializable
     data object Login : AuthRoute
