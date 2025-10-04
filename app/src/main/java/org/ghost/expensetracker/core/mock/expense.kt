@@ -29,7 +29,7 @@ fun createMockProfiles(count: Int): List<ProfileEntity> {
 
     for (i in 0 until count) {
         val (firstName, lastName) = namePairs[i % namePairs.size]
-        val randomNumber = Random.nextInt(100, 999)
+        Random.nextInt(100, 999)
 
         val profile = ProfileEntity(
             // id is 0 so Room can auto-generate it

@@ -133,7 +133,7 @@ private fun CategoryScreenContent(
             )
         },
         snackbarHost = {
-            SnackbarHost(snackbarHostState) {snackbarData ->
+            SnackbarHost(snackbarHostState) { snackbarData ->
                 ErrorSnackBar(snackbarData = snackbarData)
             }
         }

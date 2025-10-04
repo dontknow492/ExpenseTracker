@@ -60,10 +60,9 @@ class SettingsViewModel @Inject constructor(
                 val lastProfileId = settings.lastLoginProfileId
                 val onboarded = settings.isOnboarded
 
-                if (!onboarded){
+                if (!onboarded) {
                     flowOf(StartupDestinationState.Onboarding)
-                }
-                else if (lastProfileId == null) {
+                } else if (lastProfileId == null) {
                     // Case 1: No last user was saved. Go directly to Login.
                     // We wrap the result in a flow so flatMapLatest can use it.
                     flowOf(StartupDestinationState.Login)

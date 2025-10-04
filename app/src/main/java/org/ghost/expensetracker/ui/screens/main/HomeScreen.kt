@@ -565,7 +565,7 @@ fun HomeExpenseListItem(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        when (val refreshState = expensesPagingItems.loadState.refresh) {
+        when (expensesPagingItems.loadState.refresh) {
             is LoadState.Error -> {
                 val e = expensesPagingItems.loadState.refresh as LoadState.Error
                 item {

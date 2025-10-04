@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                     StartupDestinationState.Loading -> {
                         null
                     }
+
                     StartupDestinationState.Onboarding -> OnBoardingRoute
                     StartupDestinationState.Login -> AuthRoute.Login
                     is StartupDestinationState.Main -> {

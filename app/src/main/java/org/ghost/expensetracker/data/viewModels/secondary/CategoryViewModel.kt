@@ -125,8 +125,9 @@ class CategoryViewModel @Inject constructor(
     fun deleteCategory(category: CategoryWithExpenseCount) {
         viewModelScope.launch(Dispatchers.IO) {
             if (_categoriesState.value is UiState.Success) {
-                val data = (_categoriesState.value as UiState.Success<List<CategoryWithExpenseCount>>).data
-                if(data.size <=1){
+                val data =
+                    (_categoriesState.value as UiState.Success<List<CategoryWithExpenseCount>>).data
+                if (data.size <= 1) {
                     _errorState.value = context.getString(R.string.cannot_delete_last_category)
                     return@launch
                 }

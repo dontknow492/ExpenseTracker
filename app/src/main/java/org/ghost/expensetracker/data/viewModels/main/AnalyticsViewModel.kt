@@ -1,6 +1,5 @@
 package org.ghost.expensetracker.data.viewModels.main
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
@@ -30,7 +30,6 @@ import org.ghost.expensetracker.data.useCase.chart.GetExpenseChartDataUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetAccountUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetCardUseCase
 import javax.inject.Inject
-import kotlinx.coroutines.flow.combine
 
 enum class TimeFilter {
     DAY,
@@ -137,7 +136,6 @@ class AnalyticsViewModel @Inject constructor(
     private val _accountExpenseType = MutableStateFlow(ExpenseType.RECIVE)
 
 
-
     // Private MutableStateFlow that we will update
     private val _uiState = MutableStateFlow(
         AnalyticsUiState(
@@ -187,7 +185,12 @@ class AnalyticsViewModel @Inject constructor(
                 )
                     .onStart {
                         // 1. Set loading to true and clear any previous error state
-                        _uiState.update { it.copy(isCardLoading = true, isCategoryChartError = false) }
+                        _uiState.update {
+                            it.copy(
+                                isCardLoading = true,
+                                isCategoryChartError = false
+                            )
+                        }
                     }
                     .catch { exception ->
                         _uiState.update {
@@ -273,7 +276,13 @@ class AnalyticsViewModel @Inject constructor(
                 ).onStart {
                     _uiState.update { it.copy(isAccountLoading = true) }
                 }.catch {
-                    _uiState.update { it.copy(isAccountLoading = false, error = it.error, isAccountChartError = true) }
+                    _uiState.update {
+                        it.copy(
+                            isAccountLoading = false,
+                            error = it.error,
+                            isAccountChartError = true
+                        )
+                    }
                 }
             }.collect { newAccountData ->
                 _uiState.update {

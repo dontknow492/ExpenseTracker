@@ -581,7 +581,7 @@ private fun ExpensesList(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         expenses.loadState.apply {
-            when (val refreshState = expenses.loadState.refresh) {
+            when (expenses.loadState.refresh) {
                 is LoadState.Loading -> {
                     item {
                         CircularProgressIndicator()

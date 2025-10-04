@@ -67,7 +67,11 @@ fun AboutUsScreen(
     // In a real app, you would load your actual social media icons and links
     val socialLinks = listOf(
         // Replace R.drawable.ic_github with your actual drawable resources
-        SocialLink(painterResource(id = R.drawable.github), "https://github.com/dontknow492", "GitHub"),
+        SocialLink(
+            painterResource(id = R.drawable.github),
+            "https://github.com/dontknow492",
+            "GitHub"
+        ),
         // SocialLink(painterResource(id = R.drawable.ic_linkedin), "https://linkedin.com", "LinkedIn"),
         // SocialLink(painterResource(id = R.drawable.ic_twitter), "https://twitter.com", "Twitter")
     )

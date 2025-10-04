@@ -68,7 +68,12 @@ fun DropDownButton(
 
 
 @Composable
-fun <T: Enum<T>>EnumDropDownButton(modifier: Modifier = Modifier, filter: T, filters: List<T>, onFilterChange: (T) -> Unit) {
+fun <T : Enum<T>> EnumDropDownButton(
+    modifier: Modifier = Modifier,
+    filter: T,
+    filters: List<T>,
+    onFilterChange: (T) -> Unit
+) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation = animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,

@@ -92,7 +92,7 @@ class AccountsViewModel @Inject constructor(
 
     fun deleteAccount(account: Account) {
         viewModelScope.launch {
-            if(_uiState.value.accounts.size == 1){
+            if (_uiState.value.accounts.size == 1) {
                 _uiState.update {
                     it.copy(error = context.getString(R.string.cannot_delete_last_account))
                 }

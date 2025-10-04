@@ -56,7 +56,6 @@ import org.ghost.expensetracker.data.viewModels.main.AnalyticsUiState
 import org.ghost.expensetracker.data.viewModels.main.AnalyticsViewModel
 import org.ghost.expensetracker.data.viewModels.main.TimeFilter
 import org.ghost.expensetracker.ui.components.ChartItem
-import org.ghost.expensetracker.ui.components.DropDownButton
 import org.ghost.expensetracker.ui.components.EnumDropDownButton
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import org.ghost.expensetracker.ui.components.GraphItem
@@ -68,7 +67,6 @@ import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
 import org.ghost.expensetracker.ui.navigation.SecondaryRoute
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
-
 
 
 data class AnalyticsScreenActions(
@@ -99,11 +97,21 @@ fun AnalyticsScreen(
         if (uiState.category == null && uiState.account == null) {
             return@LaunchedEffect
         }
-        if (uiState.category != null){
-            onNavigationItemClick(SecondaryRoute.Expenses(profileOwnerId, categoryId = uiState.category!!.id))
+        if (uiState.category != null) {
+            onNavigationItemClick(
+                SecondaryRoute.Expenses(
+                    profileOwnerId,
+                    categoryId = uiState.category!!.id
+                )
+            )
         }
-        if (uiState.account != null){
-            onNavigationItemClick(SecondaryRoute.Expenses(profileOwnerId, accountId = uiState.account!!.id))
+        if (uiState.account != null) {
+            onNavigationItemClick(
+                SecondaryRoute.Expenses(
+                    profileOwnerId,
+                    accountId = uiState.account!!.id
+                )
+            )
         }
     }
 
