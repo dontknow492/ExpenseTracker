@@ -29,7 +29,7 @@ This project is built with a modern Android tech stack, focusing on performance,
 * **Dependency Injection:** [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) for managing dependencies throughout the app.
 * **Database:** [Room](https://developer.android.com/training/data-storage/room) for robust, offline caching of all music metadata.
 * **Pagination:** [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) for efficiently loading and displaying large lists of songs.
-* **Charting Library: [Vico](https://github.com/patrykandpatrick/vico) a powerful charting library to render bar charts.
+* **Charting Library:** [Vico](https://github.com/patrykandpatrick/vico) a powerful charting library to render bar charts.
 * *
 
 ## 📸 Screenshots
