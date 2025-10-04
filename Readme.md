@@ -20,12 +20,17 @@ This project is built with a modern Android tech stack, focusing on performance,
 
 * Language: Kotlin
 * Architecture: MVVM (Model-View-ViewModel)
-* UI: XML with Material Components / Jetpack Compose
-* Database: Room Persistence Library for local data storage.
-* Asynchronous Programming: Coroutines for managing background threads.
-* Data Loading: Paging 3 for efficiently loading and displaying large datasets.
-* Charting Library: Utilizes a powerful charting library to render bar and pie charts (e.g., MPAndroidChart or a similar library).
-* Dependency Injection: Hilt or Koin
+* * **UI:** 100% [Jetpack Compose](https://developer.android.com/jetpack/compose) for a declarative and modern UI.
+* **Architecture:** Follows the official "Guide to App Architecture".
+  * **UI Layer:** Composable and ViewModels.
+  * **Domain Layer:** (Optional) Use cases for complex business logic.
+  * **Data Layer:** Repositories and Data Sources (Room & MediaStore).
+* **Asynchronous Programming:** [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) and [Flow](https://kotlinlang.org/docs/flow.html) for managing background tasks and data streams.
+* **Dependency Injection:** [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) for managing dependencies throughout the app.
+* **Database:** [Room](https://developer.android.com/training/data-storage/room) for robust, offline caching of all music metadata.
+* **Pagination:** [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) for efficiently loading and displaying large lists of songs.
+* **Charting Library: [Vico](https://github.com/patrykandpatrick/vico) a powerful charting library to render bar charts.
+* *
 
 ## 📸 Screenshots
 
