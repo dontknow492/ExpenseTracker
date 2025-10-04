@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import org.ghost.expensetracker.core.utils.LocaleHelper
 import org.ghost.expensetracker.data.models.AppSettings
 import org.ghost.expensetracker.data.models.AppSettingsKeys
 import org.ghost.expensetracker.data.models.AppTheme
@@ -99,6 +100,7 @@ class SettingsRepository @Inject constructor(
     suspend fun updateLanguage(language: Language) {
         dataStore.edit { preferences ->
             preferences[AppSettingsKeys.LANGUAGE] = language.name
+            LocaleHelper.setLocale(language)
         }
     }
 

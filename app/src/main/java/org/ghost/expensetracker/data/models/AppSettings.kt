@@ -53,10 +53,10 @@ fun StartScreen.toNav(profileOwnerId: Long): MainRoute {
  */
 enum class Language(val code: String) {
     ENGLISH("en"),
-    SPANISH("es"),
-    GERMAN("de"),
-    FRENCH("fr")
-    // Add other supported languages here
+    HINDI("hi"),
+//    SPANISH("es"),
+//    GERMAN("de"),
+//    FRENCH("fr")
 }
 
 /**

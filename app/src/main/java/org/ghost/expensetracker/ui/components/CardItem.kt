@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.utils.CardUtils
 import org.ghost.expensetracker.core.utils.CurrencyUtils
 import org.ghost.expensetracker.data.models.Card
 
@@ -188,13 +189,18 @@ fun WideCardItem(
             CurrencyUtils.formattedAmount(card.balance, card.currency)
         }
     }
+
+    val iconId = remember(card.cardCompany) {
+        CardUtils.getCardIcon(card.cardCompany)
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.clickable { onClick(card) }
     ) {
         Box {
             AsyncImage(
-                model = R.drawable.master_card,
+                model = iconId,
                 contentDescription = null,
                 modifier = Modifier
                     .size(height = 70.dp, width = 80.dp)

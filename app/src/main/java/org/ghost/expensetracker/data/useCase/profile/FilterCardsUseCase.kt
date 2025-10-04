@@ -27,24 +27,3 @@ class FilterCardsUseCase @Inject constructor(
     }
 }
 
-class UpdateCardUseCase @Inject constructor(
-    private val accountRepository: AccountRepository
-) {
-    suspend operator fun invoke(card: Card) {
-        accountRepository.updateCard(card)
-    }
-
-    suspend operator fun invoke(cards: List<Card>) {
-        accountRepository.updateCards(cards)
-    }
-}
-
-class DeleteCardUseCase @Inject constructor(
-    private val accountRepository: AccountRepository
-) {
-    suspend operator fun invoke(card: Card): Boolean {
-        return accountRepository.deleteCardById(card.id)
-    }
-
-}
-

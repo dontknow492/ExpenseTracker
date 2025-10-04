@@ -109,7 +109,7 @@ class RegisterViewModel @Inject constructor(
             id = 0,
             firstName = currentState.firstName.trim(),
             lastName = currentState.lastName.trim(),
-            avatarUri = null,
+            avatarFilePath = null,
             avatarUrl = null,
             email = "",
         )

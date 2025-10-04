@@ -19,101 +19,15 @@ import kotlinx.coroutines.launch
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.ExpenseGroupBy
 import org.ghost.expensetracker.core.enums.ExpenseType
+import org.ghost.expensetracker.core.enums.TimeFilter
+import org.ghost.expensetracker.core.ui.states.AnalyticsUiState
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.data.database.models.ExpenseFilters
-import org.ghost.expensetracker.data.models.Account
-import org.ghost.expensetracker.data.models.Card
-import org.ghost.expensetracker.data.models.Category
-import org.ghost.expensetracker.data.models.ExpenseChartData
 import org.ghost.expensetracker.data.useCase.category.GetCategoryUseCase
 import org.ghost.expensetracker.data.useCase.chart.GetExpenseChartDataUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetAccountUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetCardUseCase
 import javax.inject.Inject
-
-enum class TimeFilter {
-    DAY,
-    WEEK,
-    MONTH,
-    YEAR;
-
-    override fun toString(): String {
-        return when (this) {
-            DAY -> "Day"
-            WEEK -> "Week"
-            MONTH -> "Month"
-            YEAR -> "Year"
-        }
-    }
-
-    companion object {
-        fun fromString(value: String): TimeFilter {
-            return when (value) {
-                "Day" -> DAY
-                "Week" -> WEEK
-                "Month" -> MONTH
-                "Year" -> YEAR
-                else -> throw IllegalArgumentException("Invalid TimeFilter value: $value")
-            }
-        }
-
-        fun fromStringOrDefault(value: String, default: TimeFilter): TimeFilter {
-            return when (value) {
-                "Day" -> DAY
-                "Week" -> WEEK
-                "Month" -> MONTH
-                "Year" -> YEAR
-                else -> default
-            }
-        }
-    }
-
-
-}
-
-data class AnalyticsUiState(
-    val isLoading: Boolean = true,
-    val isIncomeChartLoading: Boolean = true,
-    val isSpendChartLoading: Boolean = true,
-    val error: String? = null,
-    val isIncomeChartError: Boolean = false,
-    val isSpendChartError: Boolean = false,
-
-    //category
-    val category: Category? = null,
-    val categoryExpenseType: ExpenseType = ExpenseType.RECIVE,
-    val categoryError: String? = null,
-    val isCategoryLoading: Boolean = false,
-    val isCategoryChartError: Boolean = false,
-
-    //card
-    val cards: Card? = null,
-    val cardsError: String? = null,
-    val isCardLoading: Boolean = false,
-    val isCardChartError: Boolean = false,
-
-    //account
-    val account: Account? = null,
-    val accountExpenseType: ExpenseType = ExpenseType.RECIVE,
-    val accountsError: String? = null,
-    val isAccountLoading: Boolean = false,
-    val isAccountChartError: Boolean = false,
-
-
-    //filter
-    val incomeTimeFilter: TimeFilter,
-    val expenseTimeFilter: TimeFilter,
-    val categoryTimeFilter: TimeFilter,
-    val cardTimeFilter: TimeFilter,
-    val accountTimeFilter: TimeFilter,
-
-    val categoryExpenseData: List<ExpenseChartData> = emptyList(), // Assuming your use case returns List<ChartData>
-    val cardExpenseData: List<ExpenseChartData> = emptyList(),
-    val accountExpenseData: List<ExpenseChartData> = emptyList(),
-    val spendData: List<ExpenseChartData> = emptyList(),
-    val incomeData: List<ExpenseChartData> = emptyList()
-    // Add other chart data or UI properties here
-)
 
 @HiltViewModel
 class AnalyticsViewModel @Inject constructor(
@@ -426,6 +340,7 @@ class AnalyticsViewModel @Inject constructor(
 
 
     fun updateCategory(name: String) {
+
         viewModelScope.launch {
             // Use firstOrNull to get a single result and then stop collecting.
             val category = getCategoryUseCase(profileOwnerId, name).firstOrNull()
@@ -487,6 +402,16 @@ class AnalyticsViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+
+    fun onNavigationHandled() {
+        _uiState.update {
+            it.copy(
+                category = null,
+                account = null
+            )
         }
     }
 

@@ -14,18 +14,13 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.ui.states.AccountsUiState
 import org.ghost.expensetracker.data.models.Account
 import org.ghost.expensetracker.data.useCase.profile.DeleteAccountUseCase
 import org.ghost.expensetracker.data.useCase.profile.GetAccountsUseCase
 import org.ghost.expensetracker.data.useCase.profile.UpdateAccountUseCase
 import javax.inject.Inject
 
-
-data class AccountsUiState(
-    val accounts: List<Account> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
 
 @HiltViewModel
 class AccountsViewModel @Inject constructor(

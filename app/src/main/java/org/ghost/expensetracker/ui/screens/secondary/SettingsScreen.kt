@@ -16,9 +16,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.ui.actions.SettingsScreenActions
 import org.ghost.expensetracker.data.models.AppSettings
 import org.ghost.expensetracker.data.models.AppTheme
 import org.ghost.expensetracker.data.models.Language
@@ -27,14 +30,6 @@ import org.ghost.expensetracker.data.viewModels.secondary.SettingsUiState
 import org.ghost.expensetracker.data.viewModels.secondary.SettingsViewModel
 import org.ghost.expensetracker.ui.components.SettingsCollapsibleEnumItem
 import org.ghost.expensetracker.ui.components.SettingsSwitchItem
-
-data class SettingsScreenActions(
-    val onNavigateBack: () -> Unit,
-    val setTheme: (AppTheme) -> Unit,
-    val setLanguage: (Language) -> Unit,
-    val setMaterialYou: (Boolean) -> Unit,
-    val setStartScreen: (StartScreen) -> Unit
-)
 
 @Composable
 fun SettingsScreen(
@@ -107,8 +102,8 @@ fun SettingsScreenContent(
             }
             item {
                 SettingsSwitchItem(
-                    title = "Use Material You",
-                    description = "Enable or disable Material You colors",
+                    title = stringResource(R.string.use_material_you),
+                    description = stringResource(R.string.material_you_description),
                     checked = appSettings.isMaterialYouEnabled,
                     searchQuery = "",
                     onCheckedChange = actions.setMaterialYou
@@ -116,8 +111,8 @@ fun SettingsScreenContent(
             }
             item {
                 SettingsCollapsibleEnumItem(
-                    title = "Start Screen",
-                    description = "Set the screen to start on",
+                    title = stringResource(R.string.start_screen),
+                    description = stringResource(R.string.start_screen_description),
                     options = StartScreen.entries,
                     currentSelection = appSettings.startScreen,
                     onSelectionChange = actions.setStartScreen,
@@ -126,8 +121,8 @@ fun SettingsScreenContent(
             }
             item {
                 SettingsCollapsibleEnumItem(
-                    title = "Language",
-                    description = "Set the screen to language",
+                    title = stringResource(R.string.language),
+                    description = stringResource(R.string.language_description),
                     options = Language.entries,
                     currentSelection = appSettings.language,
                     onSelectionChange = actions.setLanguage,

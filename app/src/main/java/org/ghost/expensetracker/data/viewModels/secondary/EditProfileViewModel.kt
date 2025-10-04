@@ -1,9 +1,13 @@
 package org.ghost.expensetracker.data.viewModels.secondary
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,35 +17,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.ghost.expensetracker.core.ui.states.EditProfileUiState
+import org.ghost.expensetracker.core.utils.ImageUtils
 import org.ghost.expensetracker.core.utils.isEmailValid
 import org.ghost.expensetracker.data.models.Profile
 import org.ghost.expensetracker.data.useCase.profile.GetProfileUseCase
 import org.ghost.expensetracker.data.useCase.profile.UpdateProfileUseCase
+import java.io.File
 import javax.inject.Inject
-
-data class EditProfileUiState(
-    val email: String = "",
-    val firstName: String = "",
-    val lastName: String = "",
-    val avatarUri: String? = null,
-    val avatarUrl: String? = null,
-
-    // Specific error flags for better UI feedback
-    val isFirstNameError: Boolean = false,
-    val isLastNameError: Boolean = false,
-    val isEmailError: Boolean = false,
-
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val isProfileSaved: Boolean = false // Flag for navigation or showing a success message
-)
 
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val getProfileUseCase: GetProfileUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    @param: ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val _profileOwnerId = checkNotNull(savedStateHandle.get<Long>("profileOwnerId"))
@@ -64,7 +55,7 @@ class EditProfileViewModel @Inject constructor(
                     email = profile.email,
                     firstName = profile.firstName,
                     lastName = profile.lastName,
-                    avatarUri = profile.avatarUri,
+                    avatarFilePath = if (profile.avatarFilePath != null) File(profile.avatarFilePath) else null,
                     avatarUrl = profile.avatarUrl
                 )
             }
@@ -85,8 +76,8 @@ class EditProfileViewModel @Inject constructor(
                         id = _profileOwnerId,
                         firstName = currentState.firstName.trim(),
                         lastName = currentState.lastName.trim(),
-                        email = currentState.email.trim(), // Assuming email can be updated
-                        avatarUri = currentState.avatarUri,
+                        email = _profile.value?.email ?: currentState.email, // Assuming email can be updated
+                        avatarFilePath = currentState.avatarFilePath?.absolutePath,
                         avatarUrl = currentState.avatarUrl
                     )
 
@@ -143,9 +134,46 @@ class EditProfileViewModel @Inject constructor(
     }
 
 
-    fun onAvatarUriChange(avatarUri: String?) {
-        _uiState.update {
-            it.copy(avatarUri = avatarUri)
+    fun onAvatarUriChange(avatarUri: Uri?) {
+        Log.d("EditProfileViewModel", "Cached image path: ${avatarUri}")
+
+        if(avatarUri == null) return
+        viewModelScope.launch {
+            // ... (Show a loading indicator)
+
+            val cachedImageFile = ImageUtils.cacheImageFromUri(context, avatarUri)
+
+            Log.d("EditProfileViewModel", "Cached image path: ${cachedImageFile?.absolutePath}")
+
+
+            if (cachedImageFile != null) {
+                // Now, save the *path* of the new file to your database
+                val newAvatarPath = cachedImageFile.absolutePath
+
+
+                // If there was an old avatar, delete it to save space
+                val oldAvatarPath = _profile.value?.avatarFilePath
+                if (oldAvatarPath != null) {
+                    ImageUtils.deleteCacheImage(context, oldAvatarPath)
+                }
+
+                _uiState.update {
+                    it.copy(
+                        avatarFilePath = cachedImageFile,
+                        isLoading = false,
+                        isAvatarError = false
+                    )
+                }
+
+            } else {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "Failed to save avatar. Please try again.",
+                        isLoading = false,
+                        isAvatarError = true
+                    )
+                }
+            }
         }
     }
 

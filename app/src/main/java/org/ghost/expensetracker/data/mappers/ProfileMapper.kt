@@ -8,21 +8,20 @@ fun ProfileEntity.toDomainModel(): Profile {
         id = id,
         firstName = firstName,
         lastName = lastName,
-        avatarUri = avatarUri,
+        avatarFilePath = avatarFilePath,
         avatarUrl = avatarUrl,
         email = email
     )
 }
 
 fun Profile.toEntity(
-    email: String,
     passwordHash: String,
 ): ProfileEntity {
     return ProfileEntity(
         id = id,
         firstName = firstName,
         lastName = lastName,
-        avatarUri = avatarUri,
+        avatarFilePath = avatarFilePath,
         avatarUrl = avatarUrl,
         email = email,
         passwordHash = passwordHash,

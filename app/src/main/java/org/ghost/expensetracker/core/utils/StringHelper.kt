@@ -3,6 +3,7 @@ package org.ghost.expensetracker.core.utils
 import androidx.compose.ui.graphics.Color
 import java.security.MessageDigest
 import java.util.regex.Pattern
+import androidx.core.graphics.toColorInt
 
 /**
  * Computes the SHA-256 hash of the string.
@@ -38,14 +39,5 @@ fun isEmailValid(email: String): Boolean {
 fun String.isValidHex(): Boolean = this.matches(Regex("^#?([0-9a-fA-F]{6})$"))
 
 fun String.toColor(): Color {
-    val cleanHex = this.removePrefix("#")
-    return if (cleanHex.length == 6) {
-        try {
-            Color(android.graphics.Color.parseColor("#$cleanHex"))
-        } catch (e: Exception) {
-            Color.Gray
-        }
-    } else {
-        Color.Gray
-    }
+    return Color(this.toColorInt())
 }

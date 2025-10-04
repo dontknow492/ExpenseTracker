@@ -14,23 +14,3 @@ class GetAccountUseCase @Inject constructor(
 }
 
 
-class UpdateAccountUseCase @Inject constructor(
-    private val accountRepository: AccountRepository
-) {
-    suspend operator fun invoke(account: Account): Boolean {
-        return accountRepository.updateAccount(account)
-    }
-
-    suspend operator fun invoke(accounts: List<Account>) {
-        accountRepository.updateAccounts(accounts)
-    }
-}
-
-class DeleteAccountUseCase @Inject constructor(
-    private val accountRepository: AccountRepository
-) {
-    suspend operator fun invoke(account: Account): Boolean {
-        return accountRepository.deleteAccountById(account.id)
-    }
-
-}

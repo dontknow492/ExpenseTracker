@@ -1,7 +1,11 @@
 package org.ghost.expensetracker.ui.screens.secondary
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,19 +48,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
-import org.ghost.expensetracker.data.viewModels.secondary.EditProfileUiState
+import org.ghost.expensetracker.core.ui.actions.EditProfileScreenActions
+import org.ghost.expensetracker.core.ui.states.EditProfileUiState
 import org.ghost.expensetracker.data.viewModels.secondary.EditProfileViewModel
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 
-
-data class EditProfileScreenActions(
-    val onFirstNameChange: (String) -> Unit,
-    val onLastNameChange: (String) -> Unit,
-    val onEmailChange: (String) -> Unit,
-    val onAvatarUriChange: (String?) -> Unit,
-    val onAvatarUrlChange: (String?) -> Unit,
-    val onUpdateProfileClick: () -> Unit,
-)
 
 @Composable
 fun EditProfileScreen(
@@ -102,6 +98,10 @@ fun EditProfileScreenContent(
     actions: EditProfileScreenActions,
     onNavigateBack: () -> Unit
 ) {
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->actions.onAvatarUriChange(uri) }
+    )
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.errorMessage) {
@@ -145,10 +145,16 @@ fun EditProfileScreenContent(
             // --- Avatar Section ---
             Box(
                 contentAlignment = Alignment.BottomEnd,
-//                modifier = Modifier.clickable { imagePickerLauncher.launch("image/*") }
+                modifier = Modifier.clickable {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly,
+                        )
+                    )
+                }
             ) {
                 AsyncImage(
-                    model = uiState.avatarUri ?: uiState.avatarUrl,
+                    model = uiState.avatarFilePath ?: uiState.avatarUrl,
                     contentDescription = "Profile Avatar",
                     placeholder = painterResource(id = R.drawable.person_placeholder), // Add a placeholder drawable
                     error = painterResource(id = R.drawable.person_placeholder),

@@ -13,26 +13,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.ghost.expensetracker.core.ui.states.ChangePasswordUiState
 import org.ghost.expensetracker.data.models.Profile
 import org.ghost.expensetracker.data.useCase.profile.GetProfileUseCase
 import org.ghost.expensetracker.data.useCase.profile.UpdateProfileUseCase
 import javax.inject.Inject
-
-data class ChangePasswordUiState(
-    val email: String = "", // for checking
-    val oldPassword: String = "", // for checking
-    val newPassword: String = "",
-    val confirmPassword: String = "",
-
-    // Specific error flags for better UI feedback
-    val isOldPasswordError: Boolean = false,
-    val isNewPasswordError: Boolean = false,
-    val isConfirmPasswordError: Boolean = false,
-
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val isPasswordChanged: Boolean = false // Flag for navigation or showing a success message
-)
 
 @HiltViewModel
 class ChangePasswordViewModel @Inject constructor(

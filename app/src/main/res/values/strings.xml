@@ -145,6 +145,11 @@
     <string name="display">Track your expenses with ease</string>
     <string name="get_started_body">Manage your expense easily using our intuitive and user-friendly interface and set limit to your daily/monthly expense and track your every inch of spending</string>
     <string name="get_started">Get Started</string>
-
+    <string name="use_material_you">Use Material You</string>
+    <string name="material_you_description">Enable or disable dynamic color based of wallpaper.(Android 12+)</string>
+    <string name="start_screen">Start Screen</string>
+    <string name="start_screen_description">Set the screen to start on</string>
+    <string name="language">Language</string>
+    <string name="language_description">Set the app language</string>
 
 </resources>

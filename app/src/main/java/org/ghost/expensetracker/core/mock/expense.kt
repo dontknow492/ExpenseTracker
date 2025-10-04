@@ -35,7 +35,7 @@ fun createMockProfiles(count: Int): List<ProfileEntity> {
             // id is 0 so Room can auto-generate it
             firstName = firstName,
             lastName = "$lastName$i", // Add index to ensure uniqueness
-            avatarUri = null,
+            avatarFilePath = null,
             avatarUrl = null,
             email = "${firstName.lowercase()}.${lastName.uppercase()}$i@example.com",
             passwordHash = "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", // Placeholder hash of 12345678

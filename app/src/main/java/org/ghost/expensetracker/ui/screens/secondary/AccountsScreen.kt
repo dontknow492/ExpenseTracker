@@ -45,8 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.ui.actions.AccountsScreenActions
 import org.ghost.expensetracker.data.models.Account
-import org.ghost.expensetracker.data.viewModels.secondary.AccountsUiState
+import org.ghost.expensetracker.core.ui.states.AccountsUiState
 import org.ghost.expensetracker.data.viewModels.secondary.AccountsViewModel
 import org.ghost.expensetracker.ui.components.AddItemTopBar
 import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog
@@ -55,13 +56,6 @@ import org.ghost.expensetracker.ui.components.DraggableAccountItem
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-
-data class AccountsScreenActions(
-    val onMove: (fromIndex: Int, toIndex: Int) -> Unit,
-    val onDelete: (account: Account) -> Unit,
-    val onEdit: (account: Account) -> Unit,
-    val onAdd: (Account) -> Unit,
-)
 
 @Composable
 fun AccountsScreen(

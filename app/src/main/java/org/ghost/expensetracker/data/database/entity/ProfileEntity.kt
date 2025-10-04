@@ -22,8 +22,8 @@ data class ProfileEntity(
     @ColumnInfo(name = "last_name")
     val lastName: String,
 
-    @ColumnInfo(name = "avatar_uri")
-    val avatarUri: String?,
+    @ColumnInfo(name = "avatar_file_path")
+    val avatarFilePath: String?,
 
     @ColumnInfo(name = "avatar_url")
     val avatarUrl: String?,

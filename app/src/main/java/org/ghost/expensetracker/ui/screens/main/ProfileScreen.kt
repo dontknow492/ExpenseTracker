@@ -37,21 +37,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.ui.actions.ProfileScreenActions
 import org.ghost.expensetracker.data.models.Profile
 import org.ghost.expensetracker.data.viewModels.main.ProfileViewModel
-import org.ghost.expensetracker.ui.navigation.AppRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
-
-data class ProfileScreenActions(
-    val onNavigationItemClick: (AppRoute) -> Unit,
-    val onEditProfileClick: (Long) -> Unit,
-    val onChangePasswordClick: (Long) -> Unit,
-    val onAccountsClick: (Long) -> Unit,
-    val onSettingsClick: (Long) -> Unit,
-    val onAboutUsClick: (Long) -> Unit,
-    val onLogoutClick: () -> Unit,
-)
 
 @Composable
 fun ProfileScreen(
@@ -92,7 +82,7 @@ fun ProfileScreenContentPreview() {
         firstName = "John",
         lastName = "Doe",
         email = "john.doe@example.com",
-        avatarUri = null,
+        avatarFilePath = null,
         avatarUrl = null
     )
     ProfileScreenContent(
@@ -133,7 +123,7 @@ fun ProfileScreenContent(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AsyncImage(
-                    model = profile.avatarUri ?: profile.avatarUrl,
+                    model = profile.avatarFilePath ?: profile.avatarUrl,
                     contentDescription = "Profile Avatar",
                     placeholder = painterResource(id = R.drawable.person_placeholder), // Add a placeholder drawable
                     error = painterResource(id = R.drawable.person_placeholder),

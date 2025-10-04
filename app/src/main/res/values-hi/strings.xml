@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- सामान्य -->
+    <string name="app_name">खर्च ट्रैकर</string>
+    <string name="email">ईमेल</string>
+    <string name="password">पासवर्ड</string>
+    <string name="register">पंजीकरण करें</string>
+    <string name="login">लॉगिन</string>
+    <string name="error_something_went_wrong">कुछ गलत हो गया। कृपया पुनः प्रयास करें।</string>
+    <string name="label_first_name">पहला नाम</string>
+    <string name="placeholder_first_name">अपना पहला नाम दर्ज करें</string>
+    <string name="first_name">पहला नाम</string>
+    <string name="label_last_name">अंतिम नाम</string>
+    <string name="placeholder_last_name">अपना अंतिम नाम दर्ज करें</string>
+    <string name="last_name">अंतिम नाम</string>
+    <string name="label_email">ईमेल</string>
+    <string name="placeholder_email">अपना ईमेल दर्ज करें</string>
+    <string name="label_password">पासवर्ड</string>
+    <string name="hide_password">पासवर्ड छिपाएं</string>
+    <string name="show_password">पासवर्ड दिखाएं</string>
+    <string name="placeholder_password">अपना पासवर्ड दर्ज करें</string>
+    <string name="label_confirm_password">पासवर्ड की पुष्टि करें</string>
+    <string name="placeholder_confirm_password">अपना पासवर्ड पुनः दर्ज करें</string>
+
+    <string name="registration_successful">पंजीकरण सफल रहा!</string>
+    <string name="register_banner_title">मुफ्त में पंजीकरण करें</string>
+    <string name="register_banner_description">शुरू करने के लिए एक खाता बनाएं।</string>
+    <string name="button_register">पंजीकरण करें</string>
+    <string name="text_already_have_account">पहले से खाता है?</string>
+    <string name="button_login">लॉगिन करें</string>
+    <string name="login_banner">लॉगिन बैनर\n</string>
+
+    <!-- लॉगिन स्क्रीन -->
+    <string name="login_successful">लॉगिन सफल रहा!</string>
+    <string name="login_welcome_back">वापसी पर स्वागत है</string>
+    <string name="login_banner_description">अपने खर्चों को ट्रैक करें और पैसे बचाएं।</string>
+    <string name="do_not_have_account">क्या आपके पास खाता नहीं है?</string>
+    <string name="forgot_password">पासवर्ड भूल गए?</string>
+
+    <!-- पासवर्ड रीसेट स्क्रीन -->
+    <string name="reset_password">पासवर्ड रीसेट करें</string>
+    <string name="reset_password_banner_description">पासवर्ड रीसेट करने के लिए अपना ईमेल और नाम दर्ज करें।</string>
+    <string name="password_reset_successfully">पासवर्ड सफलतापूर्वक रीसेट हो गया</string>
+
+    <!-- आइटम्स -->
+    <string name="transfer">ट्रांसफर</string>
+    <string name="receive">प्राप्त करें</string>
+    <string name="selected">चयनित</string>
+    <string name="welcome_back">वापसी पर स्वागत है!</string>
+    <string name="hi">नमस्ते</string>
+    <string name="notification">सूचना</string>
+    <string name="show_balance">बैलेंस दिखाएं</string>
+    <string name="hide_balance">बैलेंस छिपाएं</string>
+    <string name="cards">कार्ड</string>
+    <string name="add_new_card">नया कार्ड जोड़ें</string>
+    <string name="wallet">वॉलेट</string>
+    <string name="default_wallet_description">प्रतिदिन के खर्चों को ट्रैक करने के लिए डिफ़ॉल्ट वॉलेट</string>
+    <string name="send">भेजें</string>
+    <string name="request">अनुरोध</string>
+    <string name="back">वापस</string>
+    <string name="save_card">कार्ड सहेजें</string>
+    <string name="add_card_title">क्रेडिट या डेबिट कार्ड जोड़ें</string>
+    <string name="add_card_description">सभी फ़ील्ड आवश्यक हैं</string>
+    <string name="expiration_date">समाप्ति तिथि</string>
+    <string name="mm_yy">MM/YY</string>
+    <string name="card_holder_name_label">कार्ड धारक का नाम</string>
+    <string name="card_name_placeholder">जॉन डो</string>
+    <string name="card_lfd_label">अंतिम चार अंक</string>
+    <string name="card_lfd_placeholder">1234</string>
+    <string name="expense_saved">खर्च सफलतापूर्वक सहेजा गया!</string>
+    <string name="add_new_category">नई श्रेणी जोड़ें</string>
+    <string name="category_name">श्रेणी का नाम</string>
+    <string name="name_desclamier">नाम खाली नहीं हो सकता</string>
+    <string name="save">सहेजें</string>
+    <string name="expenses">खर्चे</string>
+    <string name="category_created_successfully">श्रेणी सफलतापूर्वक बनाई गई</string>
+    <string name="drag_handle">खींचने का हैंडल</string>
+    <string name="delete">हटाएं</string>
+    <string name="edit">संपादित करें</string>
+    <string name="update">अपडेट करें</string>
+    <string name="remove_image">छवि हटाएं</string>
+    <string name="receipt_image">रसीद की छवि</string>
+    <string name="add_receipt_image">रसीद की छवि जोड़ें</string>
+    <string name="loading">लोड हो रहा है</string>
+    <string name="error_amount_invalid">अमान्य राशि</string>
+    <string name="amount">राशि</string>
+    <string name="income">आय</string>
+    <string name="description_optional">विवरण (वैकल्पिक)</string>
+    <string name="add_expense">खर्च जोड़ें</string>
+    <string name="error_title_required">शीर्षक आवश्यक है</string>
+    <string name="error_category_required">श्रेणी आवश्यक है</string>
+    <string name="categories">श्रेणियाँ</string>
+    <string name="more_details">अधिक विवरण</string>
+    <string name="more_detail_description">विवरण दर्ज करें (वैकल्पिक)</string>
+    <string name="title">शीर्षक</string>
+    <string name="account">खाता</string>
+    <string name="card">कार्ड</string>
+    <string name="add_account">खाता जोड़ें</string>
+    <string name="add_new_account">नया खाता जोड़ें</string>
+    <string name="new_credit_or_debit_card">नया क्रेडिट या डेबिट कार्ड</string>
+    <string name="add_new">नया जोड़ें</string>
+    <string name="dismiss">बंद करें</string>
+    <string name="select_all">सभी चुनें</string>
+    <string name="deselect">अचयनित करें</string>
+    <string name="invert">उलटें</string>
+    <string name="clear_filters">फ़िल्टर साफ़ करें</string>
+    <string name="delete_selected_items">चयनित आइटम हटाएं</string>
+    <string name="invert_selection">चयन उलटें</string>
+    <string name="deselect_all">सभी अचयनित करें</string>
+    <string name="date_range">तिथि सीमा</string>
+    <string name="recent_activity">हाल की गतिविधि</string>
+    <string name="category_not_found">श्रेणी नहीं मिली</string>
+    <string name="card_not_found">कार्ड नहीं मिला</string>
+    <string name="account_not_found">खाता नहीं मिला</string>
+    <string name="delete_card">कार्ड हटाएं?</string>
+    <string name="delete_card_message">क्या आप वाकई इस कार्ड को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="delete_category">श्रेणी हटाएं?</string>
+    <string name="delete_category_message">क्या आप वाकई इस श्रेणी को हटाना चाहते हैं? इस श्रेणी के सभी खर्च हट जाएंगे। यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="profile_updated_successfully">प्रोफ़ाइल सफलतापूर्वक अपडेट हुई</string>
+    <string name="delete_account">खाता हटाएं?</string>
+    <string name="delete_account_message">क्या आप वाकई इस खाते को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="accounts">खाते</string>
+    <string name="add_accounts">खाते जोड़ें</string>
+    <string name="about_us">हमारे बारे में</string>
+    <string name="app_slogan">"वित्तीय स्पष्टता और सफलता के लिए सहज उपकरणों के साथ व्यक्तियों को सशक्त बनाना।"</string>
+    <string name="app_description">खर्च ट्रैकर एक संपूर्ण व्यक्तिगत वित्त प्रबंधन एप्लिकेशन है जो आपके वित्तीय जीवन को सरल बनाता है। यह खर्चों को ट्रैक करने, बजट प्रबंधित करने और निवेश की निगरानी करने के लिए एक सहज अनुभव प्रदान करता है। हमारा लक्ष्य आपको समझदारीपूर्ण वित्तीय निर्णय लेने में मदद करने के लिए शक्तिशाली जानकारी देना है।</string>
+    <string name="what_we_do">हम क्या करते हैं</string>
+    <string name="follow_us">हमें फॉलो करें</string>
+    <string name="delete_expenses">खर्च हटाएं?</string>
+    <string name="delete_expenses_message">क्या आप वाकई इन खर्चों को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="empty_card_list_message">आपकी कार्ड सूची खाली है। नया कार्ड जोड़ने के लिए + बटन दबाएं।</string>
+    <string name="add_card">कार्ड जोड़ें</string>
+    <string name="empty_expense_list_message">आपकी खर्च सूची खाली है। नया खर्च जोड़ने के लिए + बटन दबाएं।</string>
+    <string name="cannot_delete_last_account">अंतिम खाता हटाया नहीं जा सकता</string>
+    <string name="cannot_delete_last_category">अंतिम श्रेणी हटाई नहीं जा सकती</string>
+    <string name="display">अपने खर्चों को आसानी से ट्रैक करें</string>
+    <string name="get_started_body">हमारे सहज और उपयोगकर्ता-मित्र इंटरफ़ेस का उपयोग करके आसानी से अपने खर्च प्रबंधित करें, दैनिक/मासिक सीमा निर्धारित करें और हर खर्च का हिसाब रखें।</string>
+    <string name="get_started">शुरू करें</string>
+    <string name="use_material_you">मटेरियल यू का उपयोग करें</string>
+    <string name="material_you_description">वॉलपेपर के आधार पर डायनामिक रंग सक्षम या अक्षम करें। (Android 12+)</string>
+    <string name="start_screen">प्रारंभ स्क्रीन</string>
+    <string name="start_screen_description">प्रारंभिक स्क्रीन सेट करें</string>
+    <string name="language">भाषा</string>
+    <string name="language_description">ऐप की भाषा सेट करें</string>
+
+</resources>

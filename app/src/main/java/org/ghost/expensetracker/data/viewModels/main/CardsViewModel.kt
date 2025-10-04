@@ -16,21 +16,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ghost.expensetracker.core.enums.CardSortBy
 import org.ghost.expensetracker.core.enums.SortOrder
+import org.ghost.expensetracker.core.ui.states.CardsUiState
 import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.data.useCase.profile.DeleteCardUseCase
 import org.ghost.expensetracker.data.useCase.profile.FilterCardsUseCase
 import org.ghost.expensetracker.data.useCase.profile.UpdateCardUseCase
 import javax.inject.Inject
 
-
-data class CardsUiState(
-    val query: String = "",
-    val sortBy: CardSortBy = CardSortBy.DISPLAY_ORDER,
-    val sortOrder: SortOrder = SortOrder.DESCENDING,
-    val cards: List<Card> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
 
 @HiltViewModel
 class CardsViewModel @Inject constructor(

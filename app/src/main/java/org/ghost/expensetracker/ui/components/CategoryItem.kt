@@ -1,5 +1,6 @@
 package org.ghost.expensetracker.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,6 +55,7 @@ import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.utils.getDrawableResourceId
 import org.ghost.expensetracker.core.utils.getResourceEntryName
+import org.ghost.expensetracker.core.utils.toColor
 import org.ghost.expensetracker.data.models.Category
 import org.ghost.expensetracker.data.models.CategoryWithExpenseCount
 
@@ -152,16 +156,12 @@ fun SimpleCategoryItem(
 ) {
     val width = 80.dp
     val height = 60.dp
-    val defaultColor = MaterialTheme.colorScheme.secondaryContainer
-    val color = remember(category.colorHex) {
-        if (category.colorHex == null) {
+    val defaultColor = MaterialTheme.colorScheme.primaryContainer
+    val color: Color = remember(category.colorHex) {
+        try {
+            category.colorHex?.toColor() ?: defaultColor
+        } catch (e: Exception) {
             defaultColor
-        } else {
-            try {
-                Color(category.colorHex.toColorInt())
-            } catch (e: Exception) {
-                defaultColor
-            }
         }
     }
 
@@ -172,10 +172,10 @@ fun SimpleCategoryItem(
             modifier = modifier.size(width = width, height = height),
             onClick = onClick,
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = if(isError) MaterialTheme.colorScheme.errorContainer else color
             )
         ) {
-            SimpleItemContent(category, color, true)
+            SimpleItemContent(Modifier, category, true)
         }
     } else {
         // --- UNSELECTED STATE ---
@@ -183,14 +183,18 @@ fun SimpleCategoryItem(
             modifier = modifier.size(width = width, height = height),
             onClick = onClick
         ) {
-            SimpleItemContent(category, color, false)
+            SimpleItemContent(Modifier, category, false)
         }
     }
 }
 
 // 3. Extracted the content to avoid code duplication
 @Composable
-private fun SimpleItemContent(category: Category, iconBackgroundColor: Color, isSelected: Boolean) {
+private fun SimpleItemContent(
+    modifier: Modifier = Modifier,
+    category: Category,
+    isSelected: Boolean
+) {
 
     val context = LocalContext.current
     val iconId: Int? = remember(category.iconName) {
@@ -208,7 +212,7 @@ private fun SimpleItemContent(category: Category, iconBackgroundColor: Color, is
 
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -221,18 +225,21 @@ private fun SimpleItemContent(category: Category, iconBackgroundColor: Color, is
         } else {
             Text(
                 text = category.name.firstOrNull()?.toString()?.uppercase() ?: "",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.size(24.dp).clip(CircleShape)
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = category.name,
             style = MaterialTheme.typography.labelMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = contentColor, // Apply the dynamic color
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -253,6 +260,14 @@ fun CategoryWithExpenseItem(
         if (category.iconName == null) return@remember null
         return@remember getDrawableResourceId(category.iconName, context = context)
     }
+    val defaultColor = MaterialTheme.colorScheme.primaryContainer
+    val color: Color = remember(category.colorHex) {
+        try {
+            category.colorHex?.toColor() ?: defaultColor
+        } catch (e: Exception) {
+            defaultColor
+        }
+    }
     Card(
         modifier = modifier.clickable { onClick(categoryWithExpenseCount) },
     ) {
@@ -265,7 +280,7 @@ fun CategoryWithExpenseItem(
                 modifier = Modifier
                     .size(54.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(color)
                     .padding(4.dp),
                 contentAlignment = Alignment.Center
             ) {

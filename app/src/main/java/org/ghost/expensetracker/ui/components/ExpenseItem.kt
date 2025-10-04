@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
-import org.ghost.expensetracker.core.utils.convertMillisToHumanReadable
+import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.data.models.Expense
 
 @Composable
@@ -147,7 +147,7 @@ private fun ExpenseItemContent(
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = expense.date.convertMillisToHumanReadable(),
+                text = DateTimeUtils.convertMillisToHumanReadable(expense.date),
                 style = MaterialTheme.typography.bodyMedium
             )
         }

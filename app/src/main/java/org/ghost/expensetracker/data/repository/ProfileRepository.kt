@@ -19,7 +19,7 @@ class ProfileRepository @Inject constructor(
     private val categoryDao: CategoryDao
 ) {
     suspend fun createProfile(profile: Profile, email: String, password: String): Long {
-        return profileDao.insert(profile.toEntity(email, password.sha256()))
+        return profileDao.insert(profile.toEntity(password.sha256()))
     }
 
     fun getProfileById(id: Long): Flow<Profile?> {
@@ -68,7 +68,6 @@ class ProfileRepository @Inject constructor(
     suspend fun updateProfile(profile: Profile, email: String, password: String): Boolean {
         return profileDao.update(
             profile.toEntity(
-                email,
                 password.sha256()
             )
         ) > 0
@@ -76,7 +75,7 @@ class ProfileRepository @Inject constructor(
 
     suspend fun updateProfile(profile: Profile): Boolean {
         val profileEntity = profileDao.getProfileById(profile.id).firstOrNull() ?: return false
-        return profileDao.update(profileEntity) > 0
+        return profileDao.update(profile.toEntity(profileEntity.passwordHash)) > 0
     }
 
     suspend fun deleteProfileByCredentials(

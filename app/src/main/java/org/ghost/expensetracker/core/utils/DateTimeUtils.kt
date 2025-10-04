@@ -1,7 +1,7 @@
 package org.ghost.expensetracker.core.utils
 
 import org.ghost.expensetracker.core.enums.ExpenseGroupBy
-import org.ghost.expensetracker.data.viewModels.main.TimeFilter
+import org.ghost.expensetracker.core.enums.TimeFilter
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId

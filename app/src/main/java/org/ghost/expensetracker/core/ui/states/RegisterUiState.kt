@@ -1,11 +1,11 @@
 package org.ghost.expensetracker.core.ui.states
 
 data class RegisterUiState(
-    val firstName: String = "John",
-    val lastName: String = "Doe",
-    val email: String = "johndoe@gmail.com",
-    val password: String = "john1@2v",
-    val confirmPassword: String = "john1@2v",
+    val firstName: String = "",
+    val lastName: String = "",
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
     val isEmailError: Boolean = false,

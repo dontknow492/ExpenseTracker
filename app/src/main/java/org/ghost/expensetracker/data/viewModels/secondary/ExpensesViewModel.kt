@@ -40,7 +40,7 @@ import org.ghost.expensetracker.data.useCase.chart.GetExpenseChartDataUseCase
 import org.ghost.expensetracker.data.useCase.expense.DeleteExpensesUseCase
 import org.ghost.expensetracker.data.useCase.expense.FilterExpensesIdsUseCase
 import org.ghost.expensetracker.data.useCase.expense.FilterExpensesUseCase
-import org.ghost.expensetracker.data.viewModels.main.TimeFilter
+import org.ghost.expensetracker.core.enums.TimeFilter
 import java.io.IOException
 import javax.inject.Inject
 import org.ghost.expensetracker.core.utils.combine as myCombine

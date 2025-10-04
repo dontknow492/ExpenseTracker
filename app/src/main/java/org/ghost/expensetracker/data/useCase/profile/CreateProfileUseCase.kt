@@ -3,13 +3,12 @@ package org.ghost.expensetracker.data.useCase.profile
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.firstOrNull
-import org.ghost.expensetracker.core.exceptions.InvalidCredentialsException
 import org.ghost.expensetracker.core.exceptions.InvalidEmailFormatException
 import org.ghost.expensetracker.core.exceptions.InvalidNameException
 import org.ghost.expensetracker.core.exceptions.InvalidPasswordFormatException
 import org.ghost.expensetracker.core.utils.getResourceEntryName
 import org.ghost.expensetracker.core.utils.isEmailValid
+import org.ghost.expensetracker.core.utils.toHexCode
 import org.ghost.expensetracker.data.default.AccountDefaults
 import org.ghost.expensetracker.data.default.CategoryDefaults
 import org.ghost.expensetracker.data.models.Account
@@ -87,7 +86,7 @@ class CreateProfileUseCase @Inject constructor(
                     id = 0,
                     profileOwnerId = profileOwnerId,
                     name = defaultCategory.name,
-                    colorHex = CategoryDefaults.categoryColors.random().toString(),
+                    colorHex = CategoryDefaults.categoryColors.random().toHexCode(),
                     iconName = getResourceEntryName(defaultCategory.iconId, context),
                     displayOrder = defaultCategory.order
                 )
@@ -101,33 +100,3 @@ class CreateProfileUseCase @Inject constructor(
 }
 
 
-class UpdateProfileUseCase @Inject constructor(
-    private val profileRepository: ProfileRepository,
-    private val accountRepository: AccountRepository,
-    @param: ApplicationContext private val context: Context
-) {
-    suspend operator fun invoke(
-        profile: Profile,
-        email: String,
-        oldPassword: String,
-        plainTextPassword: String
-    ): Boolean {
-        val existing = profileRepository.checkProfileExists(email, oldPassword)
-        require(existing) {
-            throw InvalidCredentialsException("Invalid email or password.")
-        }
-        return profileRepository.updateProfile(profile, email, plainTextPassword)
-    }
-
-    suspend operator fun invoke(profile: Profile) {
-        val existing = profileRepository.getProfileByEmailAndName(
-            profile.email,
-            profile.firstName,
-            profile.lastName
-        ).firstOrNull()
-        if (existing != null) {
-            throw IllegalStateException("A profile with this email already exists ${existing}.")
-        }
-        profileRepository.updateProfile(profile)
-    }
-}

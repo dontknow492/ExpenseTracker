@@ -21,10 +21,10 @@ import org.ghost.expensetracker.ui.screens.auth.LoginScreen
 import org.ghost.expensetracker.ui.screens.auth.RegisterScreen
 import org.ghost.expensetracker.ui.screens.main.AnalyticsScreen
 import org.ghost.expensetracker.ui.screens.main.CardsScreen
-import org.ghost.expensetracker.ui.screens.main.CardsScreenActions
+import org.ghost.expensetracker.core.ui.actions.CardsScreenActions
 import org.ghost.expensetracker.ui.screens.main.HomeScreen
 import org.ghost.expensetracker.ui.screens.main.ProfileScreen
-import org.ghost.expensetracker.ui.screens.main.ProfileScreenActions
+import org.ghost.expensetracker.core.ui.actions.ProfileScreenActions
 import org.ghost.expensetracker.ui.screens.onboarding.GetStartedScreen
 import org.ghost.expensetracker.ui.screens.secondary.AboutUsScreen
 import org.ghost.expensetracker.ui.screens.secondary.AccountsScreen

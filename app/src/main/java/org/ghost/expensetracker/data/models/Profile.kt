@@ -5,6 +5,6 @@ data class Profile(
     val firstName: String,
     val lastName: String,
     val email: String,
-    val avatarUri: String?,
+    val avatarFilePath: String?,
     val avatarUrl: String?,
 )

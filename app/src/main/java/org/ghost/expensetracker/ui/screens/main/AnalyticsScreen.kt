@@ -46,15 +46,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.ExpenseType
 import org.ghost.expensetracker.core.utils.CurrencyUtils
 import org.ghost.expensetracker.core.utils.getSafeDefaultCurrencyCode
 import org.ghost.expensetracker.data.default.CategoryDefaults
 import org.ghost.expensetracker.data.models.ExpenseChartData
-import org.ghost.expensetracker.data.viewModels.main.AnalyticsUiState
+import org.ghost.expensetracker.core.ui.states.AnalyticsUiState
 import org.ghost.expensetracker.data.viewModels.main.AnalyticsViewModel
-import org.ghost.expensetracker.data.viewModels.main.TimeFilter
+import org.ghost.expensetracker.core.enums.TimeFilter
+import org.ghost.expensetracker.core.ui.actions.AnalyticsScreenActions
 import org.ghost.expensetracker.ui.components.ChartItem
 import org.ghost.expensetracker.ui.components.EnumDropDownButton
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
@@ -69,21 +71,6 @@ import org.ghost.expensetracker.ui.navigation.SecondaryRoute
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 
 
-data class AnalyticsScreenActions(
-    val onCategoryItemClick: (String) -> Unit,
-    val onAccountItemClick: (String) -> Unit,
-    val onCategoryFilterChange: (TimeFilter) -> Unit,
-    val onCategoryTypeFilterChange: (ExpenseType) -> Unit,
-
-    val onAccountFilterChange: (TimeFilter) -> Unit,
-    val onAccountTypeFilterChange: (ExpenseType) -> Unit,
-
-    val onCardFilterChange: (String) -> Unit,
-    val onCardItemClick: (String) -> Unit,
-    val onIncomeFilterChange: (TimeFilter) -> Unit,
-    val onExpenseFilterChange: (TimeFilter) -> Unit,
-)
-
 @Composable
 fun AnalyticsScreen(
     modifier: Modifier = Modifier,
@@ -94,9 +81,6 @@ fun AnalyticsScreen(
     val profileOwnerId = viewModel.profileOwnerId
 
     LaunchedEffect(uiState.category, uiState.account) {
-        if (uiState.category == null && uiState.account == null) {
-            return@LaunchedEffect
-        }
         if (uiState.category != null) {
             onNavigationItemClick(
                 SecondaryRoute.Expenses(
@@ -104,7 +88,10 @@ fun AnalyticsScreen(
                     categoryId = uiState.category!!.id
                 )
             )
+            // ✅ Consume the event!
+            viewModel.onNavigationHandled()
         }
+
         if (uiState.account != null) {
             onNavigationItemClick(
                 SecondaryRoute.Expenses(
@@ -112,6 +99,8 @@ fun AnalyticsScreen(
                     accountId = uiState.account!!.id
                 )
             )
+            // ✅ Consume the event!
+            viewModel.onNavigationHandled()
         }
     }
 
@@ -364,6 +353,21 @@ fun PieGraphItem(
     data: List<ExpenseChartData>,
     onItemClick: (String) -> Unit
 ) {
+    if (data.isEmpty()){
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AsyncImage(
+                model = R.drawable.broken_pie_chart,
+                contentDescription = "No data"
+            )
+            Text(text = "No data to plot chart", style = MaterialTheme.typography.titleLarge)
+        }
+
+        return
+    }
     // This `remember` block is efficient and correct.
     val pieChartData = remember(data) {
         val colors: List<Color> = CategoryDefaults.categoryColors
@@ -505,11 +509,11 @@ private fun FilterItem(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.weight(1f)
         )
         EnumDropDownButton(
@@ -525,7 +529,6 @@ private fun FilterItem(
     }
 
 }
-
 
 
 

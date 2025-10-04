@@ -23,7 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -53,43 +53,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.CardSortBy
-import org.ghost.expensetracker.core.enums.SortOrder
+import org.ghost.expensetracker.core.ui.actions.CardsScreenActions
+import org.ghost.expensetracker.core.ui.actions.CardsScreenContentActions
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
 import org.ghost.expensetracker.core.utils.isValidHex
 import org.ghost.expensetracker.core.utils.toColor
 import org.ghost.expensetracker.data.models.Card
-import org.ghost.expensetracker.data.viewModels.main.CardsUiState
+import org.ghost.expensetracker.core.ui.states.CardsUiState
 import org.ghost.expensetracker.data.viewModels.main.CardsViewModel
 import org.ghost.expensetracker.ui.components.AddItemTopBar
 import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog
 import org.ghost.expensetracker.ui.components.DragHandle
 import org.ghost.expensetracker.ui.components.DraggableCardItem
-import org.ghost.expensetracker.ui.navigation.AppRoute
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-
-data class CardsScreenActions(
-    val onNavigationItemClick: (AppRoute) -> Unit,
-    val onAddCardClick: (Long) -> Unit,
-    val onCardClick: (Card) -> Unit,
-)
-
-data class CardsScreenContentActions(
-    val onMove: (fromIndex: Int, toIndex: Int) -> Unit,
-    val onDelete: (card: Card) -> Unit,
-    val onEdit: (card: Card) -> Unit,
-    val onSortByChange: (sortBy: CardSortBy) -> Unit,
-    val onSortOrderChange: (sortOrder: SortOrder) -> Unit,
-    val onQueryChange: (query: String) -> Unit,
-)
 
 @Composable
 fun CardsScreen(
@@ -112,7 +98,7 @@ fun CardsScreen(
 
     CardsScreenContent(
         modifier = modifier,
-        profileId = 1,
+        profileId = viewModel.profileOwnerId,
         uiState = uiState,
         contentActions = contentActions,
         actions = actions,
@@ -333,133 +319,133 @@ private fun EditCardDialog(
         }
     }
 
-    AlertDialog(
+    BasicAlertDialog(
         onDismissRequest = onDismiss,
-        modifier = modifier
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            tonalElevation = 6.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth()
+        modifier = modifier,
+        properties = DialogProperties(), content = {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 6.dp
             ) {
-                // --- Title ---
-                Text(
-                    text = "Edit Card",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // --- Scrollable Input Fields ---
                 Column(
                     modifier = Modifier
-                        .weight(1f, fill = false) // Takes space it needs, but not more
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(24.dp)
+                        .fillMaxWidth()
                 ) {
-                    OutlinedTextField(
-                        value = holderName,
-                        onValueChange = { holderName = it },
-                        label = { Text("Holder Name") },
-                        isError = !isHolderNameValid,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                    // --- Title ---
+                    Text(
+                        text = "Edit Card",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
-                    OutlinedTextField(
-                        value = type,
-                        onValueChange = { type = it },
-                        label = { Text("Card Type (e.g., Debit)") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = cardCompany,
-                        onValueChange = { cardCompany = it },
-                        label = { Text("Card Company (e.g., Visa)") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = lastFourDigits,
-                        onValueChange = {
-                            if (it.length <= 4) lastFourDigits = it.filter { c -> c.isDigit() }
-                        },
-                        label = { Text("Last Four Digits") },
-                        isError = !areDigitsValid,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = expirationDate,
-                        onValueChange = { if (it.length <= 5) expirationDate = it },
-                        label = { Text("Expiration Date (MM/YY)") },
-                        isError = !isExpiryValid,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = ExpiryDateVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    // --- Hex Color Input with Preview ---
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                    // --- Scrollable Input Fields ---
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false) // Takes space it needs, but not more
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         OutlinedTextField(
-                            value = hexColor,
-                            onValueChange = { hexColor = it },
-                            label = { Text("Hex Color") },
-                            leadingIcon = { Text("#") },
-                            isError = !isHexColorValid,
+                            value = holderName,
+                            onValueChange = { holderName = it },
+                            label = { Text("Holder Name") },
+                            isError = !isHolderNameValid,
                             singleLine = true,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(Modifier.width(8.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(hexColor.toColor(), CircleShape)
-                                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                        OutlinedTextField(
+                            value = type,
+                            onValueChange = { type = it },
+                            label = { Text("Card Type (e.g., Debit)") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
                         )
-                    }
-                }
-
-                // --- Action Buttons ---
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 24.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel")
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val updatedCard = card.copy(
-                                holderName = holderName.trim(),
-                                type = type.trim(),
-                                cardCompany = cardCompany.trim(),
-                                cardLastFourDigits = lastFourDigits.toInt(),
-                                expirationDate = DateTimeUtils.fromMMYY(expirationDate),
-                                hexColor = "#${hexColor.removePrefix("#")}"
+                        OutlinedTextField(
+                            value = cardCompany,
+                            onValueChange = { cardCompany = it },
+                            label = { Text("Card Company (e.g., Visa)") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = lastFourDigits,
+                            onValueChange = {
+                                if (it.length <= 4) lastFourDigits = it.filter { c -> c.isDigit() }
+                            },
+                            label = { Text("Last Four Digits") },
+                            isError = !areDigitsValid,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = expirationDate,
+                            onValueChange = { if (it.length <= 5) expirationDate = it },
+                            label = { Text("Expiration Date (MM/YY)") },
+                            isError = !isExpiryValid,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            visualTransformation = ExpiryDateVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        // --- Hex Color Input with Preview ---
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = hexColor,
+                                onValueChange = { hexColor = it },
+                                label = { Text("Hex Color") },
+                                leadingIcon = { Text("#") },
+                                isError = !isHexColorValid,
+                                singleLine = true,
+                                modifier = Modifier.weight(1f)
                             )
-                            onEdit(updatedCard)
-                        },
-                        enabled = isFormValid
+                            Spacer(Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(hexColor.toColor(), CircleShape)
+                                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            )
+                        }
+                    }
+
+                    // --- Action Buttons ---
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Text("Save")
+                        TextButton(onClick = onDismiss) {
+                            Text("Cancel")
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val updatedCard = card.copy(
+                                    holderName = holderName.trim(),
+                                    type = type.trim(),
+                                    cardCompany = cardCompany.trim(),
+                                    cardLastFourDigits = lastFourDigits.toInt(),
+                                    expirationDate = DateTimeUtils.fromMMYY(expirationDate),
+                                    hexColor = "#${hexColor.removePrefix("#")}"
+                                )
+                                onEdit(updatedCard)
+                            },
+                            enabled = isFormValid
+                        ) {
+                            Text("Save")
+                        }
                     }
                 }
             }
-        }
-    }
+        })
 }
 
 // --- Helper Functions and Classes ---

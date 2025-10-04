@@ -19,17 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.ui.theme.Seed
 
-//@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = !true)
 @Composable
 fun GetStartedScreen(
     modifier: Modifier = Modifier,
-    onOnboardingFinished: () -> Unit = {},
+    onOnboardingFinished: () -> Unit,
 ) {
     val contentColor = Color.Black
     Scaffold(
