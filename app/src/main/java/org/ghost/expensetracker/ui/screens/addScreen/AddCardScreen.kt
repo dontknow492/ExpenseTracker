@@ -14,10 +14,15 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +30,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,7 +59,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.CardType
+import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
 import org.ghost.expensetracker.data.viewModels.addScreen.AddCardViewModel
+import org.ghost.expensetracker.ui.components.EnumDropDownButton
+import org.ghost.expensetracker.ui.components.ErrorSnackBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,16 +75,31 @@ fun AddCardScreen(
     val cardState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val datePickerState = rememberDatePickerState()
+    var isDatePickerVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(cardState.isCardSaved) {
+    LaunchedEffect(cardState.isCardSaved, cardState.error) {
         if (cardState.isCardSaved) {
             Toast.makeText(context, "Card Saved", Toast.LENGTH_SHORT).show()
             onCardSaved()
+        }
+        cardState.error?.let {
+            snackbarHostState.showSnackbar(
+                it,
+                withDismissAction = true,
+                duration = SnackbarDuration.Indefinite
+            )
         }
     }
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { snackbarData ->
+                ErrorSnackBar(snackbarData = snackbarData)
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {},
@@ -88,6 +116,16 @@ fun AddCardScreen(
             )
 
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = viewModel::saveCard,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = stringResource(R.string.save)
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -110,7 +148,14 @@ fun AddCardScreen(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                singleLine = true
+                singleLine = true,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.rounded_abc_24),
+                        contentDescription = stringResource(R.string.card_holder_name_label),
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
             )
 
             Row(
@@ -120,7 +165,7 @@ fun AddCardScreen(
                 OutlinedTextField(
                     value = cardState.cardLastFourDigits,
                     onValueChange = viewModel::onLastFourDigitsChange,
-                    label = { Text(stringResource(R.string.card_lfd_label)) },
+                    label = { Text(stringResource(R.string.card_lfd_label), maxLines = 1) },
                     placeholder = { Text(stringResource(R.string.card_lfd_placeholder)) },
                     modifier = Modifier.weight(1f),
                     isError = !cardState.isCardLastFourDigitsValid,
@@ -128,21 +173,40 @@ fun AddCardScreen(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.rounded_123_24),
+                            contentDescription = stringResource(R.string.card_lfd_label),
+                            modifier = Modifier.size(34.dp)
+                        )
+                    }
                 )
                 OutlinedTextField(
                     value = cardState.expirationDate.toString(),
                     onValueChange = viewModel::onExpirationDateChange,
-                    label = { Text(stringResource(R.string.expiration_date)) },
+                    label = { Text(stringResource(R.string.expiration_date), maxLines = 1) },
                     placeholder = { Text(stringResource(R.string.mm_yy)) },
                     modifier = Modifier.weight(1f),
-                    isError = !cardState.isCardLastFourDigitsValid,
+                    isError = !cardState.isExpirationDateValid,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
-                    singleLine = true
-                )
+                    visualTransformation = ExpiryDateVisualTransformation(),
+                    leadingIcon = {
+                        IconButton(
+                            onClick = { isDatePickerVisible = true}
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = stringResource(R.string.expiration_date)
+                            )
+                        }
+                    },
+                    singleLine = true,
+
+                    )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -152,7 +216,7 @@ fun AddCardScreen(
                 OutlinedTextField(
                     value = cardState.cardCompany,
                     onValueChange = viewModel::onCardCompanyChange,
-                    label = { Text("Card Company") },
+                    label = { Text(stringResource(R.string.card_company), maxLines = 1) },
                     placeholder = { Text("Visa") },
                     modifier = Modifier.weight(1f),
                     isError = !cardState.isCardCompanyValid,
@@ -166,7 +230,13 @@ fun AddCardScreen(
                             viewModel.saveCard()
                         }
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.card),
+                            contentDescription = stringResource(R.string.card_company)
+                        )
+                    }
                 )
 
                 DropDownBox(
@@ -191,6 +261,27 @@ fun AddCardScreen(
         }
     }
 
+    if (isDatePickerVisible) {
+        DatePickerDialog(
+            onDismissRequest = { isDatePickerVisible = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.onExpirationDateChangeCalender(datePickerState.selectedDateMillis)
+                        isDatePickerVisible = false
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+        ) {
+            DatePicker(
+                state = datePickerState,
+            )
+        }
+
+
+    }
 }
 
 @Composable
@@ -275,38 +366,7 @@ fun DropDownBox(
         }
     }
 
-
 }
 
 
-@Composable
-private fun InputField(
-    modifier: Modifier = Modifier,
-    label: String,
-    value: String,
-    placeholder: String,
-    onValueChange: (String) -> Unit,
-    isError: Boolean,
-    enabled: Boolean,
-    singleLine: Boolean = true,
-    leadingIcon: @Composable (() -> Unit),
-    trailingIcon: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        modifier = Modifier.fillMaxWidth(),
-        visualTransformation = visualTransformation,
-        isError = isError,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        singleLine = singleLine,
-        keyboardOptions = keyboardOptions,
 
-        )
-}

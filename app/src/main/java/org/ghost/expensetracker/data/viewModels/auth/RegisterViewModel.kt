@@ -111,14 +111,13 @@ class RegisterViewModel @Inject constructor(
             lastName = currentState.lastName.trim(),
             avatarFilePath = null,
             avatarUrl = null,
-            email = "",
+            email = currentState.email,
         )
 
         // --- 3. Call the Use Case ---
         viewModelScope.launch {
             val result = createProfileUseCase(
                 newProfile,
-                currentState.email,
                 currentState.password,
                 currentState.confirmPassword
             )

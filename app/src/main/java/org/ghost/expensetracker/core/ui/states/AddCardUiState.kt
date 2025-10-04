@@ -14,6 +14,7 @@ data class AddCardUiState(
     val isHolderNameValid: Boolean = true,
     val isCardLastFourDigitsValid: Boolean = true,
     val isCardCompanyValid: Boolean = true,
+    val isExpirationDateValid: Boolean = true,
 
     // State of the save operation
     val isLoading: Boolean = false,

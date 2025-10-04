@@ -1,5 +1,6 @@
 package org.ghost.expensetracker.data.viewModels.addScreen
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,7 @@ import org.ghost.expensetracker.core.exceptions.CardAlreadyExistsException
 import org.ghost.expensetracker.core.exceptions.InvalidCredentialsException
 import org.ghost.expensetracker.core.exceptions.InvalidNameException
 import org.ghost.expensetracker.core.ui.states.AddCardUiState
+import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.getSafeDefaultCurrencyCode
 import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.data.useCase.profile.AddCardUseCase
@@ -57,7 +59,12 @@ class AddCardViewModel @Inject constructor(
     }
 
     fun onExpirationDateChange(date: String) {
+        if(date.length>4) return
         _uiState.update { it.copy(expirationDate = date) }
+    }
+
+    fun onExpirationDateChangeCalender(data: Long?){
+        _uiState.update { it.copy(expirationDate = DateTimeUtils.toMMYY(data)) }
     }
 
     fun onCardTypeChange(type: String) {
@@ -76,6 +83,35 @@ class AddCardViewModel @Inject constructor(
         viewModelScope.launch {
             // --- 3. Create Card Object ---
             // In a real app, you'd get the profileOwnerId from your repository
+            if(currentState.expirationDate.length!=4){
+                _uiState.update {
+                    it.copy(
+                        error = "Invalid expiration date: ${currentState.expirationDate})}",
+                        isLoading = false,
+                        isExpirationDateValid = false
+                    )
+                }
+                return@launch
+
+            }
+            val firstPart = currentState.expirationDate.substring(0, 2) // "12"
+            val secondPart = currentState.expirationDate.substring(2, 4) // "34"
+
+            val formattedString = "$firstPart/$secondPart"
+
+
+            val expirationDate = DateTimeUtils.fromMMYY(formattedString)
+            if (expirationDate == null) {
+                _uiState.update {
+                    it.copy(
+                        error = "Invalid expiration date: ${currentState.expirationDate})}",
+                        isLoading = false,
+                        isExpirationDateValid = false
+                    )
+                }
+                return@launch
+            }
+
             val newCard = Card(
                 id = 0, // 0 tells Room to auto-generate
                 profileOwnerId = _profileOwnerId,
@@ -85,7 +121,7 @@ class AddCardViewModel @Inject constructor(
                 type = currentState.cardType, // Or let user choose
                 cardCompany = currentState.cardCompany,
                 cardLastFourDigits = currentState.cardLastFourDigits.toInt(),
-                expirationDate = null, // todo
+                expirationDate = expirationDate, // todo
                 hexColor = currentState.hexColor,
                 isDefault = false, // Or based on user preference,
                 displayOrder = 0 // Or based on user preference
@@ -148,13 +184,6 @@ class AddCardViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    fun addAddCard(card: Card) {
-        viewModelScope.launch {
-            addCardUseCase.invoke(card)
-
         }
     }
 }

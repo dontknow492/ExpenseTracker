@@ -7,30 +7,54 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 class ExpiryDateVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        val trimmed = if (text.text.length >= 4) text.text.substring(0..3) else text.text
-        var out = ""
-        for (i in trimmed.indices) {
-            out += trimmed[i]
-            if (i == 1) out += "/"
+        // 1. Clean the input to only have digits, max 4.
+        val originalText = text.text
+        val digitsOnly = originalText.filter { it.isDigit() }.take(4)
+
+        // 2. Build the formatted output string with a slash.
+        val out = buildString {
+            digitsOnly.forEachIndexed { index, char ->
+                append(char)
+                if (index == 1) { // Add slash after the second digit
+                    append('/')
+                }
+            }
         }
 
-        val creditCardOffsetTranslator = object : OffsetMapping {
+        // 3. Create a smart OffsetMapping to handle cursor positioning.
+        val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
-                if (offset <= 1) return offset
-                if (offset <= 4) return offset + 1
-                return 5
+                // Count how many digits are in the original text up to the cursor's position.
+                val digitsBeforeCursor = originalText.take(offset).count { it.isDigit() }
+                // The new cursor position is the number of digits, plus 1 if we've passed the slash position.
+                return when {
+                    digitsBeforeCursor <= 1 -> digitsBeforeCursor
+                    // The slash is at index 2, so cursor position is num of digits + 1
+                    digitsBeforeCursor <= 4 -> digitsBeforeCursor + 1
+                    else -> 5 // Cap at the end of "MM/YY"
+                }
             }
 
             override fun transformedToOriginal(offset: Int): Int {
-                if (offset <= 2) return offset
-                if (offset <= 5) return offset - 1
-                return 4
+                // Count digits in the formatted text up to the cursor.
+                val digitsInTransformed = out.take(offset).count { it.isDigit() }
+
+                // Find the index of the Nth digit in the original, unfiltered text.
+                var digitIndex = -1
+                var digitsFound = 0
+                for (i in originalText.indices) {
+                    if (originalText[i].isDigit()) {
+                        digitsFound++
+                        if (digitsFound == digitsInTransformed) {
+                            digitIndex = i
+                            break
+                        }
+                    }
+                }
+                return digitIndex + 1
             }
         }
 
-        return TransformedText(
-            androidx.compose.ui.text.AnnotatedString(out),
-            creditCardOffsetTranslator
-        )
+        return TransformedText(AnnotatedString(out), offsetMapping)
     }
 }

@@ -225,25 +225,23 @@ fun CardsScreenContent(
                                 deletingCard = card
                             },
                             dragHandler = {
-                                if (uiState.sortBy == CardSortBy.DISPLAY_ORDER) {
-                                    DragHandle(
-                                        modifier = Modifier.draggableHandle(
+                                DragHandle(
+                                    modifier = Modifier.draggableHandle(
 
-                                            onDragStarted = {
+                                        onDragStarted = {
 
-                                                hapticFeedback.performHapticFeedback(
-                                                    HapticFeedbackType.GestureThresholdActivate
-                                                )
-                                            },
-                                            onDragStopped = {
-                                                hapticFeedback.performHapticFeedback(
-                                                    HapticFeedbackType.GestureEnd
-                                                )
-                                            },
-                                        ),
-                                        interactionSource = interactionSource
-                                    )
-                                }
+                                            hapticFeedback.performHapticFeedback(
+                                                HapticFeedbackType.GestureThresholdActivate
+                                            )
+                                        },
+                                        onDragStopped = {
+                                            hapticFeedback.performHapticFeedback(
+                                                HapticFeedbackType.GestureEnd
+                                            )
+                                        },
+                                    ),
+                                    interactionSource = interactionSource
+                                )
                             },
                         )
                     }

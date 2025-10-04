@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
@@ -31,9 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -95,7 +101,7 @@ fun ForgetPasswordScreenContent(
     onFirstNameChange: (String) -> Unit,
     onLastNameChange: (String) -> Unit,
 ) {
-
+    val focusRequester = remember { FocusRequester() }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
 
@@ -109,7 +115,8 @@ fun ForgetPasswordScreenContent(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 LoginRegisterBanner(
                     title = stringResource(id = R.string.reset_password),
@@ -121,7 +128,7 @@ fun ForgetPasswordScreenContent(
                     onValueChange = onFirstNameChange,
                     label = { Text(stringResource(id = R.string.label_first_name)) },
                     placeholder = { Text(stringResource(id = R.string.placeholder_first_name)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     enabled = !forgetPasswordState.isLoading,
                     leadingIcon = {
                         Icon(
@@ -133,6 +140,7 @@ fun ForgetPasswordScreenContent(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     )
 
                 )
@@ -153,6 +161,7 @@ fun ForgetPasswordScreenContent(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     )
 
                 )
@@ -172,6 +181,10 @@ fun ForgetPasswordScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     isError = forgetPasswordState.isEmailError,
                     enabled = !forgetPasswordState.isLoading,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    )
                 )
 
                 HorizontalDivider()
@@ -206,6 +219,7 @@ fun ForgetPasswordScreenContent(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next
                     )
 
                 )
@@ -242,6 +256,10 @@ fun ForgetPasswordScreenContent(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { onForgetPasswordClicked() }
                     )
 
                 )

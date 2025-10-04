@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +22,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBox
@@ -60,6 +64,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -153,6 +159,8 @@ private fun AddExpenseContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
 
     val isFloatingButtonEnable = remember(
         uiState.isTitleError,
@@ -174,7 +182,7 @@ private fun AddExpenseContent(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { snackbarData ->
                 ErrorSnackBar(snackbarData = snackbarData)
@@ -229,7 +237,7 @@ private fun AddExpenseContent(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             TransactionTypeSelector(
                 isSend = uiState.isSend,
@@ -238,13 +246,13 @@ private fun AddExpenseContent(
             AmountContent(
                 amount = uiState.amount,
                 onAmountChange = actions.onAmountChange,
-                isError = uiState.isAmountError
+                isError = uiState.isAmountError,
+                focusRequester = focusRequester
             )
             TitleContent(
                 value = uiState.title,
                 onValueChange = actions.onTitleChange,
-                isError = uiState.isTitleError
-
+                isError = uiState.isTitleError,
             )
             CategoriesContent(
                 selectedCategoryId = uiState.category?.id,
@@ -255,12 +263,13 @@ private fun AddExpenseContent(
                 isCategoryError = uiState.isCategoryError
             )
             MoreDetailsContent(
+                modifier = Modifier.weight(1f),
                 description = uiState.description ?: "",
                 onDescriptionChange = actions.onDescriptionChange,
                 isError = false,
             )
         }
-        AnimatedVisibility(isBottomSheetVisible) {
+        if(isBottomSheetVisible) {
             ExpenseBottomSheet(
                 account = uiState.account,
                 card = uiState.card,
@@ -504,6 +513,7 @@ fun AmountContent(
     modifier: Modifier = Modifier,
     amount: String,
     isError: Boolean,
+    focusRequester: FocusRequester,
     onAmountChange: (String) -> Unit,
 ) {
     // Amount input
@@ -517,7 +527,7 @@ fun AmountContent(
             value = amount,
             onValueChange = onAmountChange,
             placeholder = { Text("0.00", style = MaterialTheme.typography.headlineMedium) },
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().focusRequester(focusRequester),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
@@ -553,7 +563,11 @@ private fun TitleContent(
             placeholder = { Text("Enter a title...") },
             modifier = Modifier
                 .fillMaxWidth(),
-            isError = isError
+            isError = isError,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            )
         )
     }
 }
@@ -581,7 +595,14 @@ private fun MoreDetailsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            isError = isError
+            isError = isError,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {  }
+            )
         )
     }
 }

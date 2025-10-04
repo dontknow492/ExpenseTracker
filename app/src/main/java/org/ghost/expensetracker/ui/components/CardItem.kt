@@ -212,7 +212,7 @@ fun WideCardItem(
         ) {
             Row {
                 Text(
-                    text = card.cardCompany,
+                    text = card.cardCompany.uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
@@ -255,21 +255,21 @@ fun DraggableCardItem(
             onClick = onClick
         )
         IconButton(
-            onClick = { onDeleteClick(card) },
-            modifier = Modifier
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = stringResource(R.string.delete)
-            )
-        }
-        IconButton(
             onClick = { onEditClick(card) },
             modifier = Modifier
         ) {
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = stringResource(R.string.edit)
+            )
+        }
+        IconButton(
+            onClick = { onDeleteClick(card) },
+            modifier = Modifier
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.delete)
             )
         }
         dragHandler()

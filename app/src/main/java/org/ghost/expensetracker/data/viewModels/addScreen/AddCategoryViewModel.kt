@@ -16,6 +16,7 @@ import org.ghost.expensetracker.core.exceptions.InvalidCredentialsException
 import org.ghost.expensetracker.core.exceptions.InvalidNameException
 import org.ghost.expensetracker.core.ui.states.AddUpdateCategoryUiState
 import org.ghost.expensetracker.core.utils.getResourceEntryName
+import org.ghost.expensetracker.core.utils.toHexCode
 import org.ghost.expensetracker.data.models.Category
 import org.ghost.expensetracker.data.useCase.category.CreateCategoryUseCase
 import javax.inject.Inject
@@ -63,7 +64,7 @@ class AddCategoryViewModel @Inject constructor(
             id = 0,
             profileOwnerId = _profileOwnerId,
             name = currentState.name,
-            colorHex = currentState.color.toString(),
+            colorHex = currentState.color?.toHexCode(),
             iconName = null,
             displayOrder = 0
         )

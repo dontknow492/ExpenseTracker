@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,13 +39,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -62,6 +69,7 @@ fun AddCategoryDialog(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context: Context = LocalContext.current
+
 
     LaunchedEffect(uiState.isCategorySaved) {
         if (uiState.isCategorySaved) {
@@ -96,6 +104,12 @@ fun AddUpdateCategoryContent(
     onSaveCategory: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
@@ -126,8 +140,22 @@ fun AddUpdateCategoryContent(
                             Text(stringResource(R.string.name_desclamier))
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    enabled = !uiState.isLoading,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { onSaveCategory() }
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.rounded_abc_24),
+                            contentDescription = stringResource(R.string.category_name),
+                            modifier = Modifier.size(34.dp)
+                        )
+                    }
                 )
 
                 // --- Color Picker ---

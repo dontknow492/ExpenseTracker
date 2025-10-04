@@ -151,5 +151,6 @@
     <string name="start_screen_description">Set the screen to start on</string>
     <string name="language">Language</string>
     <string name="language_description">Set the app language</string>
+    <string name="card_company">Card Company</string>
 
 </resources>

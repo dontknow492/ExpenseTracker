@@ -30,7 +30,6 @@ class CreateProfileUseCase @Inject constructor(
      */
     suspend operator fun invoke(
         profile: Profile,
-        email: String,
         plainTextPassword: String,
         confirmPassword: String
     ): Result<Long> = runCatching {
@@ -39,7 +38,7 @@ class CreateProfileUseCase @Inject constructor(
             throw InvalidNameException("First-${profile.firstName} and last-${profile.lastName} names cannot be empty.")
         }
 
-        if (!isEmailValid(email)) {
+        if (!isEmailValid(profile.email)) {
             throw InvalidEmailFormatException("Invalid email format.")
         }
         require(plainTextPassword.length >= 8 && plainTextPassword.length <= 16) {
@@ -50,11 +49,11 @@ class CreateProfileUseCase @Inject constructor(
         }
 
         // --- 2. Check for Uniqueness ---
-        val existingProfile = profileRepository.checkProfileExists(email, plainTextPassword)
+        val existingProfile = profileRepository.checkProfileExists(profile.email, plainTextPassword)
 
         Log.d(
             "CreateProfileUseCase",
-            "email: $email, password: $plainTextPassword, existingProfile: $existingProfile"
+            "email: ${profile.email}, password: $plainTextPassword, existingProfile: $existingProfile"
         )
 
         require(!existingProfile) {
@@ -63,7 +62,7 @@ class CreateProfileUseCase @Inject constructor(
 
 
         // --- 4. Create the Final Entity and Insert ---
-        val profileOwnerId = profileRepository.createProfile(profile, email, plainTextPassword)
+        val profileOwnerId = profileRepository.createProfile(profile, profile.email, plainTextPassword)
         val defaultAccount = AccountDefaults.defaultAccount
         accountRepository.createAccount(
             Account(
