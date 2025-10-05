@@ -76,7 +76,8 @@ class EditProfileViewModel @Inject constructor(
                         id = _profileOwnerId,
                         firstName = currentState.firstName.trim(),
                         lastName = currentState.lastName.trim(),
-                        email = _profile.value?.email ?: currentState.email, // Assuming email can be updated
+                        email = _profile.value?.email
+                            ?: currentState.email, // Assuming email can be updated
                         avatarFilePath = currentState.avatarFilePath?.absolutePath,
                         avatarUrl = currentState.avatarUrl
                     )
@@ -137,7 +138,7 @@ class EditProfileViewModel @Inject constructor(
     fun onAvatarUriChange(avatarUri: Uri?) {
         Log.d("EditProfileViewModel", "Cached image path: ${avatarUri}")
 
-        if(avatarUri == null) return
+        if (avatarUri == null) return
         viewModelScope.launch {
             // ... (Show a loading indicator)
 

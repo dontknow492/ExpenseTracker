@@ -1,7 +1,7 @@
 package org.ghost.expensetracker.core.utils
 
-import androidx.core.os.LocaleListCompat
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import org.ghost.expensetracker.data.models.Language
 
 object LocaleHelper {

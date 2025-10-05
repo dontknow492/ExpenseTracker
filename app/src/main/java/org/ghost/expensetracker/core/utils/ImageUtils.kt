@@ -42,7 +42,7 @@ object ImageUtils {
         }
     }
 
-    fun deleteCacheImage(context: Context, cachedImageFile: String): Boolean{
+    fun deleteCacheImage(context: Context, cachedImageFile: String): Boolean {
         return File(cachedImageFile).delete()
     }
 }

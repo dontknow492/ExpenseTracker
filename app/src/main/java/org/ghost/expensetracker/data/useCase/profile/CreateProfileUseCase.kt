@@ -62,7 +62,8 @@ class CreateProfileUseCase @Inject constructor(
 
 
         // --- 4. Create the Final Entity and Insert ---
-        val profileOwnerId = profileRepository.createProfile(profile, profile.email, plainTextPassword)
+        val profileOwnerId =
+            profileRepository.createProfile(profile, profile.email, plainTextPassword)
         val defaultAccount = AccountDefaults.defaultAccount
         accountRepository.createAccount(
             Account(

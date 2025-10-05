@@ -128,7 +128,9 @@ fun ForgetPasswordScreenContent(
                     onValueChange = onFirstNameChange,
                     label = { Text(stringResource(id = R.string.label_first_name)) },
                     placeholder = { Text(stringResource(id = R.string.placeholder_first_name)) },
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     enabled = !forgetPasswordState.isLoading,
                     leadingIcon = {
                         Icon(

@@ -1,6 +1,5 @@
 package org.ghost.expensetracker.data.viewModels.addScreen
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -61,11 +60,11 @@ class AddCardViewModel @Inject constructor(
     }
 
     fun onExpirationDateChange(date: String) {
-        if(date.length>4) return
+        if (date.length > 4) return
         _uiState.update { it.copy(expirationDate = date) }
     }
 
-    fun onExpirationDateChangeCalender(data: Long?){
+    fun onExpirationDateChangeCalender(data: Long?) {
         var date = DateTimeUtils.toMMYY(data)
         if (date.isEmpty()) return
         date = date.replace("/", "")
@@ -88,7 +87,7 @@ class AddCardViewModel @Inject constructor(
         viewModelScope.launch {
             // --- 3. Create Card Object ---
             // In a real app, you'd get the profileOwnerId from your repository
-            if(currentState.expirationDate.length!=4){
+            if (currentState.expirationDate.length != 4) {
                 _uiState.update {
                     it.copy(
                         error = "Invalid expiration date: ${currentState.expirationDate})}",

@@ -1,9 +1,9 @@
 package org.ghost.expensetracker.core.utils
 
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import java.security.MessageDigest
 import java.util.regex.Pattern
-import androidx.core.graphics.toColorInt
 
 /**
  * Computes the SHA-256 hash of the string.

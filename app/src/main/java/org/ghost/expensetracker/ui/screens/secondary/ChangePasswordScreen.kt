@@ -142,12 +142,17 @@ fun ChangePasswordScreenContent(
             OutlinedTextField(
                 value = uiState.oldPassword,
                 onValueChange = actions.onOldPasswordChange,
-                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 label = { Text("Old Password") },
                 isError = uiState.isOldPasswordError,
                 supportingText = { if (uiState.isOldPasswordError) Text("Old password is required") },
                 visualTransformation = if (oldPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
                 trailingIcon = {
                     val image = if (oldPasswordVisibility)
                         painterResource(R.drawable.rounded_visibility_24)
@@ -173,7 +178,10 @@ fun ChangePasswordScreenContent(
                     )
                 },
                 visualTransformation = if (newPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
                 trailingIcon = {
                     val image = if (newPasswordVisibility)
                         painterResource(R.drawable.rounded_visibility_24)
@@ -195,7 +203,10 @@ fun ChangePasswordScreenContent(
                 isError = uiState.isConfirmPasswordError,
                 supportingText = { if (uiState.isConfirmPasswordError) Text("Passwords do not match") },
                 visualTransformation = if (confirmPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
                 trailingIcon = {
                     val image = if (confirmPasswordVisibility)
                         painterResource(R.drawable.rounded_visibility_24)

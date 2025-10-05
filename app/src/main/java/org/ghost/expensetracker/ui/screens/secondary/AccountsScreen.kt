@@ -46,8 +46,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.ui.actions.AccountsScreenActions
-import org.ghost.expensetracker.data.models.Account
 import org.ghost.expensetracker.core.ui.states.AccountsUiState
+import org.ghost.expensetracker.data.models.Account
 import org.ghost.expensetracker.data.viewModels.secondary.AccountsViewModel
 import org.ghost.expensetracker.ui.components.AddItemTopBar
 import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog

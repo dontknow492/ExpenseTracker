@@ -107,7 +107,7 @@ fun EditProfileScreenContent(
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->actions.onAvatarUriChange(uri) }
+        onResult = { uri -> actions.onAvatarUriChange(uri) }
     )
     val snackbarHostState = remember { SnackbarHostState() }
     val focusRequester = remember { FocusRequester() }
@@ -192,7 +192,9 @@ fun EditProfileScreenContent(
             OutlinedTextField(
                 value = uiState.firstName,
                 onValueChange = actions.onFirstNameChange,
-                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 label = { Text("First Name") },
                 isError = uiState.isFirstNameError,
                 supportingText = { if (uiState.isFirstNameError) Text("First name cannot be empty") },

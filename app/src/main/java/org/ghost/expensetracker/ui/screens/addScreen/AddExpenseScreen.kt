@@ -5,14 +5,12 @@ package org.ghost.expensetracker.ui.screens.addScreen
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,10 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBox
@@ -269,7 +265,7 @@ private fun AddExpenseContent(
                 isError = false,
             )
         }
-        if(isBottomSheetVisible) {
+        if (isBottomSheetVisible) {
             ExpenseBottomSheet(
                 account = uiState.account,
                 card = uiState.card,
@@ -527,7 +523,9 @@ fun AmountContent(
             value = amount,
             onValueChange = onAmountChange,
             placeholder = { Text("0.00", style = MaterialTheme.typography.headlineMedium) },
-            modifier = modifier.fillMaxWidth().focusRequester(focusRequester),
+            modifier = modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
@@ -601,7 +599,7 @@ private fun MoreDetailsContent(
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
-                onDone = {  }
+                onDone = { }
             )
         )
     }

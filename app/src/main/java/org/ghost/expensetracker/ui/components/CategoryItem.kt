@@ -1,6 +1,5 @@
 package org.ghost.expensetracker.ui.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +48,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import coil3.compose.AsyncImage
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.utils.getDrawableResourceId
@@ -172,7 +169,7 @@ fun SimpleCategoryItem(
             modifier = modifier.size(width = width, height = height),
             onClick = onClick,
             colors = CardDefaults.cardColors(
-                containerColor = if(isError) MaterialTheme.colorScheme.errorContainer else color
+                containerColor = if (isError) MaterialTheme.colorScheme.errorContainer else color
             )
         ) {
             SimpleItemContent(Modifier, category, true)
@@ -212,7 +209,9 @@ private fun SimpleItemContent(
 
 
     Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = 12.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -228,7 +227,9 @@ private fun SimpleItemContent(
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.size(24.dp).clip(CircleShape)
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
             )
         }
         Spacer(modifier = Modifier.height(4.dp))

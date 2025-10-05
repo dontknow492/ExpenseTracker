@@ -1,18 +1,15 @@
 package org.ghost.expensetracker.ui.screens.addScreen
 
-import android.app.Dialog
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -20,7 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -53,29 +49,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.github.skydoves.colorpicker.compose.AlphaTile
-import com.github.skydoves.colorpicker.compose.BrightnessSlider
-import com.github.skydoves.colorpicker.compose.ColorEnvelope
-import com.github.skydoves.colorpicker.compose.HsvColorPicker
-import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import org.ghost.expensetracker.R
 import org.ghost.expensetracker.core.enums.CardType
 import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
-import org.ghost.expensetracker.core.utils.toHexCode
 import org.ghost.expensetracker.data.viewModels.addScreen.AddCardViewModel
 import org.ghost.expensetracker.ui.components.ColorPickerDialog
-import org.ghost.expensetracker.ui.components.EnumDropDownButton
 import org.ghost.expensetracker.ui.components.ErrorSnackBar
 import org.ghost.expensetracker.ui.theme.Seed
 
@@ -212,7 +198,7 @@ fun AddCardScreen(
                     visualTransformation = ExpiryDateVisualTransformation(),
                     leadingIcon = {
                         IconButton(
-                            onClick = { isDatePickerVisible = true}
+                            onClick = { isDatePickerVisible = true }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,

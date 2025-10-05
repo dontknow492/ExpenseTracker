@@ -1,11 +1,11 @@
 package org.ghost.expensetracker.core.ui.states
 
 import org.ghost.expensetracker.core.enums.ExpenseType
+import org.ghost.expensetracker.core.enums.TimeFilter
 import org.ghost.expensetracker.data.models.Account
 import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.data.models.Category
 import org.ghost.expensetracker.data.models.ExpenseChartData
-import org.ghost.expensetracker.core.enums.TimeFilter
 
 data class AnalyticsUiState(
     val isLoading: Boolean = true,

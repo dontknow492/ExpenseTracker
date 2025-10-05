@@ -140,7 +140,9 @@ fun AddUpdateCategoryContent(
                             Text(stringResource(R.string.name_desclamier))
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     enabled = !uiState.isLoading,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,

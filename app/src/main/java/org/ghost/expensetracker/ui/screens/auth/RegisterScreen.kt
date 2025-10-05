@@ -110,7 +110,9 @@ fun RegisterScreenContent(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
                 LoginRegisterBanner(
                     title = stringResource(id = R.string.register_banner_title),
@@ -121,7 +123,9 @@ fun RegisterScreenContent(
                     onValueChange = onFirstNameChange,
                     label = { Text(stringResource(id = R.string.label_first_name)) },
                     placeholder = { Text(stringResource(id = R.string.placeholder_first_name)) },
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     enabled = !registerState.isLoading,
                     leadingIcon = {
                         Icon(
@@ -136,7 +140,7 @@ fun RegisterScreenContent(
                         imeAction = ImeAction.Next
                     ),
 
-                )
+                    )
                 OutlinedTextField(
                     value = registerState.lastName,
                     onValueChange = onLastNameChange,

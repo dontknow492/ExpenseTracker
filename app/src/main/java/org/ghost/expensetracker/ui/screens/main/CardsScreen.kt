@@ -1,18 +1,14 @@
 package org.ghost.expensetracker.ui.screens.main
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -61,16 +56,14 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
-import org.ghost.expensetracker.core.enums.CardSortBy
 import org.ghost.expensetracker.core.ui.actions.CardsScreenActions
 import org.ghost.expensetracker.core.ui.actions.CardsScreenContentActions
+import org.ghost.expensetracker.core.ui.states.CardsUiState
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.ExpiryDateVisualTransformation
-import org.ghost.expensetracker.core.utils.isValidHex
 import org.ghost.expensetracker.core.utils.toColor
-import org.ghost.expensetracker.data.models.Card
-import org.ghost.expensetracker.core.ui.states.CardsUiState
 import org.ghost.expensetracker.core.utils.toHexCode
+import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.data.viewModels.main.CardsViewModel
 import org.ghost.expensetracker.ui.components.AddItemTopBar
 import org.ghost.expensetracker.ui.components.ColorPickerDialog
@@ -408,7 +401,8 @@ private fun EditCardDialog(
                         OutlinedCard(
                             modifier = Modifier
                                 .clickable { isColorPickerDialogVisible = true }
-                                .height(48.dp).fillMaxWidth(),
+                                .height(48.dp)
+                                .fillMaxWidth(),
                             colors = CardDefaults.cardColors().copy(
                                 containerColor = color
                             )
