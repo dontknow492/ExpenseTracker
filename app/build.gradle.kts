@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.material.icons.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -106,4 +107,7 @@ dependencies {
     //vico(charts)
 //    implementation(libs.vico.core)
     implementation(libs.vico.compose)
+
+    //colorpicker
+    implementation(libs.colorpicker.comopse)
 }

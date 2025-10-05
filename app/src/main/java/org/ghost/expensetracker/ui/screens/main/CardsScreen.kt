@@ -2,6 +2,7 @@ package org.ghost.expensetracker.ui.screens.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,11 +28,13 @@ import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -66,14 +70,17 @@ import org.ghost.expensetracker.core.utils.isValidHex
 import org.ghost.expensetracker.core.utils.toColor
 import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.core.ui.states.CardsUiState
+import org.ghost.expensetracker.core.utils.toHexCode
 import org.ghost.expensetracker.data.viewModels.main.CardsViewModel
 import org.ghost.expensetracker.ui.components.AddItemTopBar
+import org.ghost.expensetracker.ui.components.ColorPickerDialog
 import org.ghost.expensetracker.ui.components.ConfirmDeleteDialog
 import org.ghost.expensetracker.ui.components.DragHandle
 import org.ghost.expensetracker.ui.components.DraggableCardItem
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
+import org.ghost.expensetracker.ui.theme.Seed
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -303,19 +310,23 @@ private fun EditCardDialog(
     var cardCompany by remember { mutableStateOf(card.cardCompany) }
     var lastFourDigits by remember { mutableStateOf(card.cardLastFourDigits.toString()) }
     var expirationDate by remember { mutableStateOf(DateTimeUtils.toMMYY(card.expirationDate)) }
-    var hexColor by remember { mutableStateOf(card.hexColor ?: "") }
+    var color by remember {
+        mutableStateOf(card.hexColor?.toColor() ?: Seed)
+    }
+
 
     // --- Validation State ---
     val isHolderNameValid by remember { derivedStateOf { holderName.isNotBlank() } }
     val areDigitsValid by remember { derivedStateOf { lastFourDigits.length == 4 && lastFourDigits.all { it.isDigit() } } }
     val isExpiryValid by remember { derivedStateOf { expirationDate.length == 5 } } // Simple MM/YY check
-    val isHexColorValid by remember { derivedStateOf { hexColor.isValidHex() } }
+
 
     val isFormValid by remember {
         derivedStateOf {
-            isHolderNameValid && areDigitsValid && isExpiryValid && isHexColorValid
+            isHolderNameValid && areDigitsValid && isExpiryValid
         }
     }
+    var isColorPickerDialogVisible by remember { mutableStateOf(false) }
 
     BasicAlertDialog(
         onDismissRequest = onDismiss,
@@ -390,27 +401,18 @@ private fun EditCardDialog(
                             modifier = Modifier.fillMaxWidth()
                         )
                         // --- Hex Color Input with Preview ---
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = hexColor,
-                                onValueChange = { hexColor = it },
-                                label = { Text("Hex Color") },
-                                leadingIcon = { Text("#") },
-                                isError = !isHexColorValid,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
+                        Text(
+                            text = "Card Color",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        OutlinedCard(
+                            modifier = Modifier
+                                .clickable { isColorPickerDialogVisible = true }
+                                .height(48.dp).fillMaxWidth(),
+                            colors = CardDefaults.cardColors().copy(
+                                containerColor = color
                             )
-                            Spacer(Modifier.width(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(hexColor.toColor(), CircleShape)
-                                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                            )
-                        }
+                        ) {}
                     }
 
                     // --- Action Buttons ---
@@ -432,7 +434,7 @@ private fun EditCardDialog(
                                     cardCompany = cardCompany.trim(),
                                     cardLastFourDigits = lastFourDigits.toInt(),
                                     expirationDate = DateTimeUtils.fromMMYY(expirationDate),
-                                    hexColor = "#${hexColor.removePrefix("#")}"
+                                    hexColor = color.toHexCode()
                                 )
                                 onEdit(updatedCard)
                             },
@@ -444,6 +446,17 @@ private fun EditCardDialog(
                 }
             }
         })
+
+    if (isColorPickerDialogVisible) {
+        ColorPickerDialog(
+            color = card.hexColor?.toColor() ?: Seed,
+            onDismissRequest = { isColorPickerDialogVisible = false },
+            onColorSelected = {
+                color = it
+                isColorPickerDialogVisible = false
+            }
+        )
+    }
 }
 
 // --- Helper Functions and Classes ---

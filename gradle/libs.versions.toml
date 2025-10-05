@@ -1,9 +1,9 @@
 [versions]
 #------------------ Plugins ------------------
 agp = "8.13.0"
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 ksp = "2.2.10-2.0.2"
-hilt = "2.57.1"
+hilt = "2.57.2"
 hilt-navigation-compose = "1.3.0"
 
 #------------------ Libraries ------------------
@@ -14,8 +14,8 @@ activityCompose = "1.11.0"
 appcompat = "1.7.1"
 
 # Compose
-composeBom = "2025.09.00"
-composeNavigation = "2.9.4"
+composeBom = "2025.09.01"
+composeNavigation = "2.9.5"
 
 #datasotre
 datastore = "1.1.7"
@@ -27,7 +27,10 @@ vico = "2.2.0"
 paging = "3.3.6"
 
 # Room
-room = "2.8.0"
+room = "2.8.1"
+
+#colorpicker
+colorpickerCompose = "1.1.2"
 
 # coil 3
 coil3 = "3.3.0"
@@ -39,7 +42,7 @@ reorderable = "3.0.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-material3 = "1.3.2"
+material3 = "1.4.0"
 foundation = "1.9.2"
 
 [libraries]
@@ -62,6 +65,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 
 #------------------ Datastore -----------------------
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
@@ -96,6 +100,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 #vico-core = { group = "com.patrykandpatrick.vico", name = "core", version.ref = "vico" }
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+
+#------------------- ColorPicker -------------------
+colorpicker-comopse = { group = "com.github.skydoves", name = "colorpicker-compose", version.ref = "colorpickerCompose" }
+
 
 
 [plugins]

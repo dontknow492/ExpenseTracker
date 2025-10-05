@@ -1,6 +1,7 @@
 package org.ghost.expensetracker.data.viewModels.addScreen
 
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import org.ghost.expensetracker.core.exceptions.InvalidNameException
 import org.ghost.expensetracker.core.ui.states.AddCardUiState
 import org.ghost.expensetracker.core.utils.DateTimeUtils
 import org.ghost.expensetracker.core.utils.getSafeDefaultCurrencyCode
+import org.ghost.expensetracker.core.utils.toHexCode
 import org.ghost.expensetracker.data.models.Card
 import org.ghost.expensetracker.data.useCase.profile.AddCardUseCase
 import javax.inject.Inject
@@ -54,8 +56,8 @@ class AddCardViewModel @Inject constructor(
         _uiState.update { it.copy(cardCompany = company, isCardCompanyValid = true) }
     }
 
-    fun onColorChange(hexColor: String) {
-        _uiState.update { it.copy(hexColor = hexColor) }
+    fun onColorChange(color: Color) {
+        _uiState.update { it.copy(color = color) }
     }
 
     fun onExpirationDateChange(date: String) {
@@ -64,7 +66,10 @@ class AddCardViewModel @Inject constructor(
     }
 
     fun onExpirationDateChangeCalender(data: Long?){
-        _uiState.update { it.copy(expirationDate = DateTimeUtils.toMMYY(data)) }
+        var date = DateTimeUtils.toMMYY(data)
+        if (date.isEmpty()) return
+        date = date.replace("/", "")
+        _uiState.update { it.copy(expirationDate = date) }
     }
 
     fun onCardTypeChange(type: String) {
@@ -122,7 +127,7 @@ class AddCardViewModel @Inject constructor(
                 cardCompany = currentState.cardCompany,
                 cardLastFourDigits = currentState.cardLastFourDigits.toInt(),
                 expirationDate = expirationDate, // todo
-                hexColor = currentState.hexColor,
+                hexColor = currentState.color?.toHexCode(),
                 isDefault = false, // Or based on user preference,
                 displayOrder = 0 // Or based on user preference
             )

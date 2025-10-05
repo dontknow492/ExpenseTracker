@@ -1,5 +1,6 @@
 package org.ghost.expensetracker.core.ui.states
 
+import androidx.compose.ui.graphics.Color
 import org.ghost.expensetracker.core.enums.CardType
 
 data class AddCardUiState(
@@ -9,7 +10,7 @@ data class AddCardUiState(
     val cardLastFourDigits: String = "",
     val cardType: String = CardType.CREDIT.type,
     val cardCompany: String = "",
-    val hexColor: String = "",
+    val color: Color? = null,
     // Validation errors
     val isHolderNameValid: Boolean = true,
     val isCardLastFourDigitsValid: Boolean = true,
