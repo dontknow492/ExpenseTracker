@@ -9,23 +9,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -49,6 +55,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +63,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ghost.expensetracker.R
+import org.ghost.expensetracker.core.enums.CardType
 import org.ghost.expensetracker.core.ui.actions.CardsScreenActions
 import org.ghost.expensetracker.core.ui.actions.CardsScreenContentActions
 import org.ghost.expensetracker.core.ui.states.CardsUiState
@@ -72,6 +80,7 @@ import org.ghost.expensetracker.ui.components.DragHandle
 import org.ghost.expensetracker.ui.components.DraggableCardItem
 import org.ghost.expensetracker.ui.navigation.ExpenseTrackerNavigationBar
 import org.ghost.expensetracker.ui.navigation.MainRoute
+import org.ghost.expensetracker.ui.screens.addScreen.DropDownBox
 import org.ghost.expensetracker.ui.screens.secondary.EmptyScreen
 import org.ghost.expensetracker.ui.theme.Seed
 import sh.calvin.reorderable.ReorderableItem
@@ -297,6 +306,8 @@ private fun EditCardDialog(
     onDismiss: () -> Unit,
     onEdit: (Card) -> Unit
 ) {
+    val datePickerState = rememberDatePickerState()
+    var isDatePickerVisible by remember { mutableStateOf(false) }
     // --- State Management for Editable Fields ---
     var holderName by remember { mutableStateOf(card.holderName) }
     var type by remember { mutableStateOf(card.type) }
@@ -356,21 +367,42 @@ private fun EditCardDialog(
                             label = { Text("Holder Name") },
                             isError = !isHolderNameValid,
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.rounded_abc_24),
+                                    contentDescription = stringResource(R.string.card_holder_name_label),
+                                    modifier = Modifier.size(34.dp)
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
                         )
-                        OutlinedTextField(
-                            value = type,
-                            onValueChange = { type = it },
-                            label = { Text("Card Type (e.g., Debit)") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
+                        DropDownBox(
+                            modifier = Modifier,
+                            value = CardType.CREDIT.toString(),
+                            items = CardType.entries.map { it.type },
+                            onItemSelected = {}
                         )
                         OutlinedTextField(
                             value = cardCompany,
                             onValueChange = { cardCompany = it },
                             label = { Text("Card Company (e.g., Visa)") },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.card),
+                                    contentDescription = stringResource(R.string.card_company)
+                                )
+                            }
+
                         )
                         OutlinedTextField(
                             value = lastFourDigits,
@@ -380,8 +412,19 @@ private fun EditCardDialog(
                             label = { Text("Last Four Digits") },
                             isError = !areDigitsValid,
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.rounded_123_24),
+                                    contentDescription = stringResource(R.string.card_lfd_label),
+                                    modifier = Modifier.size(34.dp)
+                                )
+                            }
+
                         )
                         OutlinedTextField(
                             value = expirationDate,
@@ -391,7 +434,17 @@ private fun EditCardDialog(
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             visualTransformation = ExpiryDateVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = {
+                                IconButton(
+                                    onClick = { isDatePickerVisible = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = stringResource(R.string.expiration_date)
+                                    )
+                                }
+                            },
                         )
                         // --- Hex Color Input with Preview ---
                         Text(
@@ -450,6 +503,25 @@ private fun EditCardDialog(
                 isColorPickerDialogVisible = false
             }
         )
+    }
+    if (isDatePickerVisible) {
+        DatePickerDialog(
+            onDismissRequest = { isDatePickerVisible = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+//                        viewModel.onExpirationDateChangeCalender(datePickerState.selectedDateMillis)
+                        isDatePickerVisible = false
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+        ) {
+            DatePicker(
+                state = datePickerState,
+            )
+        }
     }
 }
 
